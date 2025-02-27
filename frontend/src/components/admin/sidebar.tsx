@@ -1,12 +1,63 @@
-export default function Sidebar() {
+'use client'
+import React from 'react'
+import { LaptopOutlined, SafetyOutlined, NotificationOutlined, UserOutlined, KeyOutlined  } from "@ant-design/icons";
+import { Menu } from "antd";
+import type { MenuProps } from "antd";
+import { useRouter } from "next/navigation";
+import path from 'path';
+
+const menuItems = [
+    {
+        key: '1',
+        icon: <UserOutlined />,
+        label: 'Phân quyền người dùng',
+        children: [
+            { key: '/', icon: <UserOutlined />, label: 'Người dùng'},
+            { key: '/admin/roles', icon: <SafetyOutlined />, label: 'Quyền' },
+            { key: '1.3', icon: <KeyOutlined />, label: 'Phân quyền' },
+        ]
+    },
+    {
+        key: '2',
+        icon: <LaptopOutlined />,
+        label: 'Dashboard',
+    },
+    {
+        key: '3',
+        icon: <NotificationOutlined />,
+        label: 'Notifications',
+    },
+    {
+        key: '4',
+        icon: <UserOutlined />,
+        label: 'Account',
+    },
+    {
+        key: '5',
+        icon: <LaptopOutlined />,
+        label: 'Settings',
+    },
+    {
+        key: '6',
+        icon: <NotificationOutlined />,
+        label: 'Notices',
+    },
+]
+
+
+function Sidebar() {
+    const router = useRouter();
+
+    // ✅ Xử lý khi click vào menu
+    const handleMenuClick: MenuProps["onClick"] = (e) => {
+        router.push(e.key);
+    };
+    
     return (
-        <aside className="w-64 h-screen bg-gray-900 text-white p-4">
-            <ul className="space-y-4">
-                <li><a href="/admin/dashboard" className="block py-2 px-4 hover:bg-gray-700 rounded">Dashboard</a></li>
-                <li><a href="/admin/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</a></li>
-                <li><a href="/admin/roles" className="block py-2 px-4 hover:bg-gray-700 rounded">Role</a></li>
-                <li><a href="/admin/products" className="block py-2 px-4 hover:bg-gray-700 rounded">Products</a></li>
-            </ul>
+        <aside>
+            <Menu mode="inline" style={{ height: "100%", borderRight: 0 }} items={menuItems} onClick={handleMenuClick} />
         </aside>
-    );
+    )
 }
+
+export default Sidebar

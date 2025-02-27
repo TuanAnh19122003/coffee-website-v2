@@ -1,5 +1,10 @@
-export default function Home(){
-    return(
-        <h1>Welcome to the Coffee Website</h1>
+"use client";
+import React from 'react'
+
+function HomePage() {
+    return (
+        <div>Home User</div>
     )
-};
+}
+
+export default HomePage

@@ -1,76 +1,48 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { Button, Form, Input, message, Card } from 'antd';
 
-const CreateRole = () => {
-    const [values, setValues] = useState({
-        name: '',
-    });
+const CreateRolePage = () => {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const router = useRouter();
 
-    // Xử lý thay đổi của input
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setValues({
-            ...values,
-            [e.target.name]: e.target.value, // Cập nhật trường tương ứng
-        });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onFinish = async (values: { name: string }) => {
         setLoading(true);
-        setError('');
-
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/roles`, values);
-
-            if (response.status >= 200 && response.status < 300) {
-                alert('Role created successfully!');
-                setValues({ name: ''});
-                router.push('/admin/roles');
-            } else {
-                setError('Failed to create role, please try again.');
-            }
-        } catch (err) {
-            setError('Submission failed, please try again.');
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/roles`, values);
+            message.success('successfully created');
+            router.push('/admin/roles');
+        } catch (error) {
+            message.error('Lỗi khi thêm role, vui lòng thử lại!');
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4">Create New Role</h2>
-
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-
-            <form onSubmit={handleSubmit}>
-                <label className="block mb-2 text-sm font-medium">
-                    Role Name:
-                    <input
-                        type="text"
+        <div className="flex items-center justify-center">
+            <Card title="Create" variant="outlined" className="w-full max-w-lg shadow-lg">
+                <Form layout="vertical" onFinish={onFinish}>
+                    <Form.Item
+                        label="Name"
                         name="name"
-                        value={values.name}
-                        onChange={handleChange}
-                        className="w-full mt-1 p-2 border rounded"
-                        placeholder="Enter role name"
-                        required
-                    />
-                </label>
+                        rules={[{ required: true, message: 'Vui lòng nhập tên role!' }]}
+                    >
+                        <Input placeholder="Role Name...." />
+                    </Form.Item>
 
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition mt-4"
-                    disabled={loading}
-                >
-                    {loading ? 'Creating...' : 'Create Role'}
-                </button>
-            </form>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" loading={loading}>
+                            Create
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Card>
         </div>
     );
+
 };
 
-export default CreateRole;
+export default CreateRolePage;
