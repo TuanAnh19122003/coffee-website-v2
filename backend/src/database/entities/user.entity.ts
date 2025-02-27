@@ -6,25 +6,25 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: true })
+    @Column()
     email: string;
 
-    @Column({ nullable: true })
+    @Column()
     password: string;
 
-    @Column()
+    @Column({ nullable: true })
     image: string;
 
-    @Column({ nullable: true })
+    @Column()
     firstname: string;
 
-    @Column({ nullable: true })
+    @Column()
     lastname: string;
 
-    @Column()
+    @Column({ nullable: true })
     phone: string;
 
-    @Column()
+    @Column({ nullable: true })
     address: string;
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })

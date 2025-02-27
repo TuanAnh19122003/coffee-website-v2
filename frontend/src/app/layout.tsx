@@ -27,9 +27,9 @@ export default function RootLayout({
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Next.js App</title>
+        <title>{metadata.title?.toString()}</title>
       </head>
-      <body>
+      <body style={{ fontFamily: "Times New Roman, serif" }}>
         {children}
       </body>
     </html>
