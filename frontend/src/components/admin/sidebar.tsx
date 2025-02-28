@@ -12,7 +12,7 @@ const menuItems = [
         icon: <UserOutlined />,
         label: 'Phân quyền người dùng',
         children: [
-            { key: '/', icon: <UserOutlined />, label: 'Người dùng'},
+            { key: '/admin/users', icon: <UserOutlined />, label: 'Người dùng'},
             { key: '/admin/roles', icon: <SafetyOutlined />, label: 'Quyền' },
             { key: '1.3', icon: <KeyOutlined />, label: 'Phân quyền' },
         ]

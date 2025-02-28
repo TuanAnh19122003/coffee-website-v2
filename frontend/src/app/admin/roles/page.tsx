@@ -2,14 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { Role } from '../interfaces/Role';
 
-interface Role {
-    id: number;
-    name: string;
-}
+const { Title, Text } = Typography;
 
 const RolePage = () => {
     const [data, setData] = useState<Role[]>([]);
@@ -54,9 +52,9 @@ const RolePage = () => {
 
     const columns: TableProps<Role>['columns'] = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
+            title: 'STT',
+            key: 'index',
+            render: (_, __, index) => index + 1,
         },
         {
             title: 'Name',
@@ -89,8 +87,8 @@ const RolePage = () => {
 
     return (
         <div className="card-mt2">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="h3 mb-0 text-gray-800">Roles List</h1>
+            <div className='flex items-center justify-between border-b pb-3 mb-4'>
+                <h1 className='text-lg font-semibold text-gray-800'>Roles List</h1>
                 <Link href="/admin/roles/create">
                     <Button type="primary" icon={<PlusOutlined />}>
                         New
@@ -109,12 +107,18 @@ const RolePage = () => {
                 }}
             />
             {/* Modal hiển thị chi tiết */}
-            <Modal open={open} title="Role Details" footer={null} onCancel={() => setOpen(false)}>
+            <Modal
+                open={open}
+                title={<Title level={4}><IdcardOutlined /> Role Details</Title>}
+                footer={null}
+                onCancel={() => setOpen(false)}
+                centered
+            >
                 {selectedRole ? (
-                    <div>
-                        <p><strong>ID:</strong> {selectedRole.id}</p>
-                        <p><strong>Name:</strong> {selectedRole.name}</p>
-                    </div>
+                    <Card variant='outlined' style={{ background: '#f9f9f9', borderRadius: 10, padding: 20 }}>
+                        <p><Text strong>ID:</Text> {selectedRole.id}</p>
+                        <p><Text strong>Name:</Text> {selectedRole.name}</p>
+                    </Card>
                 ) : (
                     <p>Không có dữ liệu</p>
                 )}

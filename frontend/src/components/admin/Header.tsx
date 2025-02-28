@@ -32,31 +32,31 @@ function Header() {
     ]
 
     return (
-        <header className="flex items-center bg-[#001529] px-4 h-16 text-white justify-between">
+        <header className="flex items-center bg-white px-4 h-16 text-black justify-between shadow-md">
 
-            <div className="text-3xl">
+            <div className="flex items-center">
                 <Link href="/admin" className="no-underline">
-                    Admin Panel
+                    <img src="/logo.jpg" alt="Logo" sizes="" className="h-16" />
                 </Link>
+                <span className="text-2xl font-semibold text-black">Admin Dashboard</span>
             </div>
 
-            <div className="w-96 flex">
-                <Search placeholder="Tìm kiếm..." allowClear enterButton />
-            </div>
-
-
-            <div className="flex item-center gap-2">
-                <BellOutlined className="text-xl mr-4 cursor-pointer" />
+            <div className="flex items-center gap-5">
+                <div className="w-96 flex">
+                    <Search placeholder="Tìm kiếm..." allowClear enterButton className="border-gray-300 focus:border-blue-500" />
+                </div>
+                <BellOutlined className="text-xl mr-4 cursor-pointer hover:text-gray-500 transition ease-in-out duration-300" />
 
                 <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-                    <span className="flex items-center gap-2 cursor-pointer">
-                        <Avatar size="large" src="/anh-cv.jpg" />
-                        <span className="text-white font-medium">Nguyễn Văn A</span>
-                    </span>
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md transition ease-in-out duration-300">
+                        <Avatar size="large" src="/anh-cv.jpg" className="hover:opacity-80 transition duration-200" />
+                        <span className="font-medium hidden sm:inline text-black">Nguyễn Văn A</span>
+                    </div>
                 </Dropdown>
             </div>
         </header>
     );
+
 }
 
 export default Header;

@@ -18,7 +18,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Thêm link Google Fonts */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap"
