@@ -2,18 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Card, Typography } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography, Descriptions, message } from 'antd';
 import type { TableProps } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Role } from '../interfaces/Role';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const RolePage = () => {
     const [data, setData] = useState<Role[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
     const [open, setOpen] = useState(false);
 
@@ -33,16 +32,18 @@ const RolePage = () => {
     }, []);
 
     const handleDelete = async (roleId: number) => {
-        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa role này?');
-        if (confirmDelete) {
-            try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/roles/${roleId}`);
-                alert('Role đã bị xóa thành công!');
-                setData((prevData) => prevData.filter((role) => role.id !== roleId));
-            } catch (error) {
-                alert('Lỗi khi xóa role! Vui lòng thử lại.');
-            }
-        }
+        Modal.confirm({
+            title: 'Bạn có chắc chắn muốn xóa role này?',
+            onOk: async () => {
+                try {
+                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/roles/${roleId}`);
+                    setData((prevData) => prevData.filter((role) => role.id !== roleId));
+                    message.success('Role đã bị xóa thành công!');
+                } catch (error) {
+                    message.error('Lỗi khi xóa user role! Vui lòng thử lại.');
+                }
+            },
+        });
     };
 
     const handleViewDetails = (role: Role) => {
@@ -67,9 +68,7 @@ const RolePage = () => {
             render: (_, record) => (
                 <Space size="middle">
                     <Link href={`/admin/roles/edit/${record.id}`}>
-                        <Button type="primary" size="small" icon={<EditOutlined />}>
-                            Edit
-                        </Button>
+                        <Button type="primary" size="small" icon={<EditOutlined />}>Edit</Button>
                     </Link>
                     <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(record.id)}>
                         Delete
@@ -90,9 +89,7 @@ const RolePage = () => {
             <div className='flex items-center justify-between border-b pb-3 mb-4'>
                 <h1 className='text-lg font-semibold text-gray-800'>Roles List</h1>
                 <Link href="/admin/roles/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
+                    <Button type="primary" icon={<PlusOutlined />}>New</Button>
                 </Link>
             </div>
             <Table<Role>
@@ -106,7 +103,7 @@ const RolePage = () => {
                     position: ['bottomCenter'],
                 }}
             />
-            {/* Modal hiển thị chi tiết */}
+            {/* Modal hiển thị chi tiết Role */}
             <Modal
                 open={open}
                 title={<Title level={4}><IdcardOutlined /> Role Details</Title>}
@@ -116,8 +113,10 @@ const RolePage = () => {
             >
                 {selectedRole ? (
                     <Card variant='outlined' style={{ background: '#f9f9f9', borderRadius: 10, padding: 20 }}>
-                        <p><Text strong>ID:</Text> {selectedRole.id}</p>
-                        <p><Text strong>Name:</Text> {selectedRole.name}</p>
+                        <Descriptions bordered column={1}>
+                            <Descriptions.Item label="ID">{selectedRole.id}</Descriptions.Item>
+                            <Descriptions.Item label="Name">{selectedRole.name}</Descriptions.Item>
+                        </Descriptions>
                     </Card>
                 ) : (
                     <p>Không có dữ liệu</p>

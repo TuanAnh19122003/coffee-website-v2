@@ -14,7 +14,7 @@ const menuItems = [
         children: [
             { key: '/admin/users', icon: <UserOutlined />, label: 'Người dùng'},
             { key: '/admin/roles', icon: <SafetyOutlined />, label: 'Quyền' },
-            { key: '1.3', icon: <KeyOutlined />, label: 'Phân quyền' },
+            { key: '/admin/userRoles', icon: <KeyOutlined />, label: 'Phân quyền' },
         ]
     },
     {

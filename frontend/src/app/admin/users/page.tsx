@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Card, Typography, Col, Row } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography, Col, Row, Descriptions, message } from 'antd';
 import type { TableProps } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
 import { User } from '../interfaces/User';
@@ -33,16 +33,18 @@ const UserPage = () => {
     }, [error, setError]);
 
     const handleDelete = async (userId: number) => {
-        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa user này?');
-        if (confirmDelete) {
-            try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
-                alert('User has been successfully deleted!');
-                setData((prevData) => prevData.filter((user) => user.id !== userId));
-            } catch (error) {
-                alert('Lỗi khi xóa user! Vui lòng thử lại.');
-            }
-        }
+        Modal.confirm({
+            title: 'Bạn có chắc chắn muốn xóa user này?',
+            onOk: async () => {
+                try {
+                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
+                    setData((prevData) => prevData.filter((user) => user.id !== userId));
+                    message.success('User has been successfully deleted!');
+                } catch (error) {
+                    message.error('Lỗi khi xóa user role! Vui lòng thử lại.');
+                }
+            },
+        });
     };
 
     const handleViewDetails = (user: User) => {
@@ -139,44 +141,54 @@ const UserPage = () => {
             {/* Modal hiển thị chi tiết */}
             <Modal
                 open={open}
-                title={<Title level={4}><IdcardOutlined /> Role Details</Title>}
+                title={<Title level={4}><IdcardOutlined /> User Details</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
+                width={500} // Đặt chiều rộng cố định
             >
                 {selectedUser ? (
-                    <Card variant='outlined' style={{ background: '#f9f9f9', borderRadius: 10, padding: 20 }}>
-                        <Row gutter={16}>
-                            <Col span={11}>
-                                {selectedUser.image ? (
-                                    <img
-                                        style={{
-                                            width: '150%', // Ảnh chiếm toàn bộ chiều rộng của cột
-                                            height: '200px',
-                                            borderRadius: '8px',
-                                        }}
-                                        src={`${process.env.NEXT_PUBLIC_API_URL}/${selectedUser.image}`}
-                                        alt="User Image"
-                                    />
-                                ) : (
-                                    <Text type="secondary">No Image</Text>
-                                )}
-                            </Col>
-                            <Col span={13}>
-                                <p><Text strong>ID:</Text> {selectedUser.id}</p>
-                                <p><Text strong>Email:</Text> {selectedUser.email}</p>
-                                <p><Text strong>Full Name:</Text> {selectedUser.lastname} {selectedUser.firstname}</p>
-                                <p><Text strong>Phone:</Text> {selectedUser.phone}</p>
-                                <p><Text strong>Address:</Text> {selectedUser.address}</p>
-                                <p><Text strong>Created At:</Text> {new Date(selectedUser.createdAt).toLocaleString()}</p>
-                                <p><Text strong>Updated At:</Text> {new Date(selectedUser.updatedAt).toLocaleString()}</p>
-                            </Col>
-                        </Row>
+                    <Card
+                        style={{
+                            background: '#fff',
+                            borderRadius: 10,
+                            padding: 20,
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                        }}
+                    >
+                        {/* Ảnh lớn ở trên */}
+                        {selectedUser.image ? (
+                            <img
+                                style={{
+                                    width: '100%',
+                                    height: '250px',
+                                    borderRadius: '8px',
+                                    objectFit: 'cover',
+                                    marginBottom: '16px',
+                                }}
+                                src={`${process.env.NEXT_PUBLIC_API_URL}/${selectedUser.image}`}
+                                alt="User Image"
+                            />
+                        ) : (
+                            <Text type="secondary">No Image</Text>
+                        )}
+
+                        {/* Thông tin chi tiết */}
+                        <Descriptions column={1} bordered size="small">
+                            <Descriptions.Item label="ID">{selectedUser.id}</Descriptions.Item>
+                            <Descriptions.Item label="Email">{selectedUser.email}</Descriptions.Item>
+                            <Descriptions.Item label="Full Name">{selectedUser.lastname} {selectedUser.firstname}</Descriptions.Item>
+                            <Descriptions.Item label="Phone">{selectedUser.phone}</Descriptions.Item>
+                            <Descriptions.Item label="Address">{selectedUser.address}</Descriptions.Item>
+                            <Descriptions.Item label="Created At">{new Date(selectedUser.createdAt).toLocaleString()}</Descriptions.Item>
+                            <Descriptions.Item label="Updated At">{new Date(selectedUser.updatedAt).toLocaleString()}</Descriptions.Item>
+                        </Descriptions>
                     </Card>
                 ) : (
                     <p>Không có dữ liệu</p>
                 )}
             </Modal>
+
 
         </div>
     )

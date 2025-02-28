@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { UserrolesService } from './userroles.service';
 import { CreateUserroleDto } from './dto/create-userrole.dto';
 import { UpdateUserroleDto } from './dto/update-userrole.dto';
@@ -7,14 +7,13 @@ import { UpdateUserroleDto } from './dto/update-userrole.dto';
 export class UserrolesController {
   constructor(private readonly userrolesService: UserrolesService) {}
 
-  @Post()
-  create(@Body() createUserroleDto: CreateUserroleDto) {
-    return this.userrolesService.create(createUserroleDto);
-  }
-
   @Get()
   findAll() {
     return this.userrolesService.findAll();
+  }
+  @Post()
+  create(@Body() createUserroleDto: CreateUserroleDto) {
+    return this.userrolesService.create(createUserroleDto);
   }
 
   @Get(':id')
@@ -22,7 +21,7 @@ export class UserrolesController {
     return this.userrolesService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateUserroleDto: UpdateUserroleDto) {
     return this.userrolesService.update(+id, updateUserroleDto);
   }

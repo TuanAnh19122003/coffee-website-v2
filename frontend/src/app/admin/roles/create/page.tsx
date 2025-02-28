@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Button, Form, Input, message, Card } from 'antd';
+import { PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 
 const CreateRolePage = () => {
     const [loading, setLoading] = useState(false);
@@ -22,8 +23,14 @@ const CreateRolePage = () => {
     };
 
     return (
-        <div className="flex items-center justify-center">
-            <Card title="Create" variant="outlined" className="w-full max-w-lg shadow-lg">
+        <div className="bg-white rounded-b-lg">
+            <div className='flex items-center justify-between border-b-2 pb-3 mb-4 '>
+                <h1 className='text-lg font-semibold text-gray-800'>Create</h1>
+                <Button type='default' icon={<ArrowLeftOutlined />} size='middle' onClick={() => router.push('/admin/roles')}>
+                    Back
+                </Button>
+            </div>
+            <div>
                 <Form layout="vertical" onFinish={onFinish}>
                     <Form.Item
                         label="Name"
@@ -39,7 +46,7 @@ const CreateRolePage = () => {
                         </Button>
                     </Form.Item>
                 </Form>
-            </Card>
+            </div>
         </div>
     );
 
