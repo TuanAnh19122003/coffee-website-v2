@@ -17,7 +17,7 @@ export class Product {
     @Column({ nullable: true })
     description: string;
 
-    @Column()
+    @Column({ nullable: true })
     image: string;
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
@@ -26,7 +26,7 @@ export class Product {
     @Column({type: 'datetime', default: () => 'CURRENT_TIMESTAMP',onUpdate: 'CURRENT_TIMESTAMP',})
     updatedAt?: Date;
 
-    @OneToMany(() => ProductSize, size => size.product)
+    @OneToMany(() => ProductSize, size => size.product, { cascade: true })
     sizes: ProductSize[];
 
     @OneToMany(() => ProductSpecial, special => special.product)

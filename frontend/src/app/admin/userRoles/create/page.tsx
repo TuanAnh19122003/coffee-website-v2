@@ -32,8 +32,8 @@ function CreateUserRolePage() {
         setLoading(true);
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/userroles`, {
-                roleId: values.roleId,
-                userId: values.userId,
+                roleId: values.role,
+                userId: values.user,
             });
             message.success('Tạo role thành công!');
             router.push('/admin/userRoles');
