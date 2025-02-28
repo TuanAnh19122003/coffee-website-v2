@@ -10,23 +10,37 @@ export class CategoriesService {
     @Inject('CATEGORY_REPOSITORY')
     private categoryRepository: Repository<Category>,
   ) {}
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+
+  async findAll() {
+    return await this.categoryRepository.find();
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async create(createCategoryDto: CreateCategoryDto):Promise<Category> {
+    const category = this.categoryRepository.create(createCategoryDto);
+    return await this.categoryRepository.save(category);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number):Promise<Category> {
+    const category = await this.categoryRepository.findOne({where: {id}});
+    if(!category) {
+      throw new Error('Category not found');
+    }
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+    const category = await this.findOne(id);
+    if(!category) {
+      throw new Error('Category not found');
+    }
+    await this.categoryRepository.update(id, updateCategoryDto);
+    return {
+     ...category,
+     ...updateCategoryDto
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number):Promise<void> {
+    await this.categoryRepository.delete(id);
   }
 }

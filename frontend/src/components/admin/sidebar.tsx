@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
-import { LaptopOutlined, SafetyOutlined, NotificationOutlined, UserOutlined, KeyOutlined  } from "@ant-design/icons";
+import { LaptopOutlined, SafetyOutlined, AppstoreOutlined, NotificationOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined  } from "@ant-design/icons";
+
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
 import { useRouter } from "next/navigation";
@@ -10,17 +11,23 @@ const menuItems = [
     {
         key: '1',
         icon: <UserOutlined />,
-        label: 'Phân quyền người dùng',
+        label: 'Quản lý người dùng',
         children: [
-            { key: '/admin/users', icon: <UserOutlined />, label: 'Người dùng'},
             { key: '/admin/roles', icon: <SafetyOutlined />, label: 'Quyền' },
+            { key: '/admin/users', icon: <UserOutlined />, label: 'Người dùng'},
             { key: '/admin/userRoles', icon: <KeyOutlined />, label: 'Phân quyền' },
         ]
     },
     {
         key: '2',
-        icon: <LaptopOutlined />,
-        label: 'Dashboard',
+        icon: <AppstoreOutlined />,
+        label: 'Quản lý Sản phẩm',
+        children: [
+            { key: '/admin/categories', icon: <TagsOutlined />, label: 'Loại sản phẩm' }, 
+            { key: '/admin/products', icon: <ShoppingCartOutlined />, label: 'Sản phẩm' },
+            { key: '/admin/sizes', icon: <ColumnWidthOutlined />, label: 'Size' },
+            { key: '/admin/special-products', icon: <StarOutlined />, label: 'Sản phẩm đặc biệt' },
+        ]
     },
     {
         key: '3',

@@ -16,6 +16,7 @@ const UserPage = () => {
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [open, setOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,13 +40,18 @@ const UserPage = () => {
                 try {
                     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`);
                     setData((prevData) => prevData.filter((user) => user.id !== userId));
-                    message.success('User has been successfully deleted!');
+                    message.success('Người dùng đã được xóa thành công!');
                 } catch (error) {
-                    message.error('Lỗi khi xóa user role! Vui lòng thử lại.');
+                    message.error('Lỗi khi xóa user! Vui lòng thử lại.');
                 }
             },
         });
     };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
 
     const handleViewDetails = (user: User) => {
         setSelectedUser(user);
@@ -56,7 +62,7 @@ const UserPage = () => {
         {
             title: 'STT',
             key: 'index',
-            render: (_, __, index) => index + 1,
+            render: (_, __, index) => (currentPage - 1) * 5 + index + 1,
         },
         {
             title: 'Image',
@@ -136,6 +142,7 @@ const UserPage = () => {
                     showSizeChanger: true,
                     pageSizeOptions: ['5', '10', '15'],
                     position: ['bottomCenter'],
+                    onChange: handlePageChange,
                 }}
             />
             {/* Modal hiển thị chi tiết */}
