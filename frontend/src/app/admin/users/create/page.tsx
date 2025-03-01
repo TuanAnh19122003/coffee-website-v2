@@ -56,10 +56,33 @@ const CreateUserPage = () => {
                     <Form.Item
                         label="Email"
                         name="email"
-                        rules={[{ required: true, type: 'email', message: 'Vui lòng nhập đúng định dạng email!' }]}
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Vui lòng nhập email!',
+                            },
+                            {
+                                pattern: /^[a-zA-Z0-9._%+-]+$/,
+                                message: 'Phần trước @ chỉ chứa chữ, số và một số ký tự đặc biệt (_ . % + -)',
+                            },
+                            {
+                                pattern: /^.+@.+$/,
+                                message: 'Email phải chứa ký tự @',
+                            },
+                            {
+                                pattern: /^[a-zA-Z0-9.-]+$/,
+                                message: 'Tên miền chỉ chứa chữ, số, dấu chấm (.) và dấu gạch ngang (-)',
+                            },
+                            {
+                                pattern: /\.[a-zA-Z]{2,}$/,
+                                message: 'Tên miền phải có phần mở rộng (VD: .com, .vn, .org)',
+                            }
+                        ]}
+                        validateTrigger="onChange"
                     >
-                        <Input placeholder="Email...." />
+                        <Input placeholder="Email..." />
                     </Form.Item>
+
 
                     <Form.Item
                         label="Password"

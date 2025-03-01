@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { LaptopOutlined, SafetyOutlined, AppstoreOutlined, NotificationOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined  } from "@ant-design/icons";
+import { LaptopOutlined, SafetyOutlined, AppstoreOutlined, ContactsOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined  } from "@ant-design/icons";
 
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
@@ -30,9 +30,10 @@ const menuItems = [
         ]
     },
     {
-        key: '3',
-        icon: <NotificationOutlined />,
+        key: '/admin/contacts',
+        icon: <ContactsOutlined />,
         label: 'Notifications',
+        
     },
     {
         key: '4',
@@ -46,7 +47,7 @@ const menuItems = [
     },
     {
         key: '6',
-        icon: <NotificationOutlined />,
+        icon: <ContactsOutlined />,
         label: 'Notices',
     },
 ]
