@@ -23,7 +23,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <Layout style={{ minHeight: "100vh" }}>
             <Header />
             <Layout>
-                <Sider width={200} style={{ background: colorBgContainer }}>
+                <Sider width={250} style={{ background: colorBgContainer }}>
                     <Sidebar />
                 </Sider>
                 <Layout style={{ padding: "0 24px 24px" }}>

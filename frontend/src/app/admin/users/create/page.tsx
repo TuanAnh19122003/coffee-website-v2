@@ -62,23 +62,21 @@ const CreateUserPage = () => {
                                 message: 'Vui lòng nhập email!',
                             },
                             {
-                                pattern: /^[a-zA-Z0-9._%+-]+$/,
-                                message: 'Phần trước @ chỉ chứa chữ, số và một số ký tự đặc biệt (_ . % + -)',
-                            },
-                            {
-                                pattern: /^.+@.+$/,
+                                pattern: /@/,
                                 message: 'Email phải chứa ký tự @',
+                                validateTrigger: "onChange",
                             },
                             {
-                                pattern: /^[a-zA-Z0-9.-]+$/,
+                                pattern: /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+)$/,
                                 message: 'Tên miền chỉ chứa chữ, số, dấu chấm (.) và dấu gạch ngang (-)',
+                                validateTrigger: "onChange",
                             },
                             {
                                 pattern: /\.[a-zA-Z]{2,}$/,
-                                message: 'Tên miền phải có phần mở rộng (VD: .com, .vn, .org)',
+                                message: 'Tên miền phải có phần mở rộng hợp lệ (VD: .com, .vn, .org)',
+                                validateTrigger: "onChange",
                             }
                         ]}
-                        validateTrigger="onChange"
                     >
                         <Input placeholder="Email..." />
                     </Form.Item>
