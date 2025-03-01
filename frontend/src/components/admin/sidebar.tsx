@@ -26,7 +26,7 @@ const menuItems = [
             { key: '/admin/categories', icon: <TagsOutlined />, label: 'Loại sản phẩm' }, 
             { key: '/admin/products', icon: <ShoppingCartOutlined />, label: 'Sản phẩm' },
             { key: '/admin/product-sizes', icon: <ColumnWidthOutlined />, label: 'Size' },
-            { key: '/admin/special-products', icon: <StarOutlined />, label: 'Sản phẩm đặc biệt' },
+            { key: '/admin/product-specials', icon: <StarOutlined />, label: 'Sản phẩm đặc biệt' },
         ]
     },
     {
@@ -55,7 +55,6 @@ const menuItems = [
 function Sidebar() {
     const router = useRouter();
 
-    // ✅ Xử lý khi click vào menu
     const handleMenuClick: MenuProps["onClick"] = (e) => {
         router.push(e.key);
     };
