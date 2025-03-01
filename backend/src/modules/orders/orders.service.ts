@@ -15,7 +15,7 @@ export class OrdersService {
   
   async findAll() {
     const order = await this.orderRepository.find({
-      relations: ['user']
+      relations: ['user','orderItems','orderItems.product']
     })
     return order;
   }
@@ -34,7 +34,7 @@ export class OrdersService {
   async findOne(id: number):Promise<Order | null> {
     const order = this.orderRepository.findOne({
       where: { id },
-      relations: ['user']
+      relations: ['user','orderItems','orderItems.product']
     })
     if(!order){
       throw new Error('Order not found')

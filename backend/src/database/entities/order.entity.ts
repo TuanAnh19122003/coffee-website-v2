@@ -20,6 +20,6 @@ export class Order {
     @Column({ type: "enum", enum: OrderStatus, default: OrderStatus.PENDING })
     status: OrderStatus;
 
-    @OneToMany(() => OrderItem, orderItem => orderItem.order)
+    @OneToMany(() => OrderItem, orderItem => orderItem.order, { eager: true })
     orderItems: OrderItem[];
 }

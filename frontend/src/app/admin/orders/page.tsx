@@ -6,6 +6,7 @@ import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } 
 import type { TableProps } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { Order } from '../interfaces/Order';
+import numeral from 'numeral';
 
 const { Title, Text } = Typography;
 
@@ -32,6 +33,22 @@ function OrderPage() {
         fetchData();
     }, [])
 
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders`);
+                console.log(response.data);
+                setData(response.data); // ✅ orderItems sẽ có trong data
+            } catch (error: any) {
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+    
     const columns: TableProps<Order>['columns'] = [
         {
             title: 'STT',
@@ -102,11 +119,16 @@ function OrderPage() {
         setCurrentPage(page);
     };
 
-    const handleViewDetails = (order: Order) => {
-        setSelectedOrder(order);
-        setOpen(true);
+    const handleViewDetails = async (order: Order) => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/${order.id}?populate=orderItems.product`);
+            console.log(response.data); // Debug để kiểm tra dữ liệu API
+            setSelectedOrder(response.data);
+            setOpen(true);
+        } catch (error) {
+            message.error('Lỗi khi lấy chi tiết đơn hàng!');
+        }
     };
-
 
     return (
         <div className='card-mt2'>
@@ -130,10 +152,9 @@ function OrderPage() {
                     onChange: handlePageChange,
                 }}
             />
-            {/* Modal hiển thị chi tiết */}
             <Modal
                 open={open}
-                title={<Title level={4}><OrderedListOutlined /> Details Order of {`${selectedOrder?.user.lastname} ${selectedOrder?.user.firstname}`|| ''}</Title>}
+                title={<Title level={4}><OrderedListOutlined /> Details Order of {`${selectedOrder?.user.lastname} ${selectedOrder?.user.firstname}` || ''}</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
@@ -148,12 +169,33 @@ function OrderPage() {
                             boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                         }}
                     >
-                        <Descriptions column={1} bordered size="small">
-                            <Descriptions.Item label="ID">{selectedOrder.id}</Descriptions.Item>
-                            <Descriptions.Item label="Total Price">{selectedOrder.total_price}</Descriptions.Item>
-                            <Descriptions.Item label="Status">{selectedOrder.status}</Descriptions.Item>
-                            <Descriptions.Item label="Order date">{new Date(selectedOrder.order_date).toLocaleString()}</Descriptions.Item>
-                        </Descriptions>
+                        <Descriptions.Item label="Products">
+                            {selectedOrder?.orderItems && selectedOrder.orderItems.length > 0 ? (
+                                <Table
+                                    dataSource={selectedOrder.orderItems}
+                                    rowKey="id"
+                                    size="small"
+                                    pagination={false}
+                                    columns={[
+                                        { title: "Product", dataIndex: ["product", "name"], key: "product" },
+                                        { 
+                                            title: "Quantity", 
+                                            dataIndex: "quantity", 
+                                            key: "quantity"
+                                        },
+                                        { 
+                                            title: "Price", 
+                                            dataIndex: "price", 
+                                            key: "price",
+                                            render: (price) => price ? numeral(price).format('0,0') + ' ₫' : 'N/A', 
+                                        },
+                                    ]}
+                                />
+                            ) : (
+                                <Text type="secondary">No items</Text>
+                            )}
+                        </Descriptions.Item>
+
                     </Card>
                 ) : (
                     <p>Không có dữ liệu</p>

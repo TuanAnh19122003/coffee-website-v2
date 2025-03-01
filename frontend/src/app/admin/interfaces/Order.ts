@@ -1,3 +1,4 @@
+import { OrderItem } from "./OrderItem";
 import { User } from "./User";
 
 export enum OrderStatus{
@@ -12,4 +13,5 @@ export interface Order{
     total_price: number;
     status: OrderStatus;
     user: User;
+    orderItems?: OrderItem[];
 }
