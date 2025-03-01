@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { LaptopOutlined, SafetyOutlined, AppstoreOutlined, ContactsOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined  } from "@ant-design/icons";
+import { ShoppingOutlined, ReconciliationOutlined, SafetyOutlined, AppstoreOutlined, ContactsOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined, OrderedListOutlined  } from "@ant-design/icons";
 
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
@@ -30,6 +30,15 @@ const menuItems = [
         ]
     },
     {
+        key: '3',
+        icon: <OrderedListOutlined />,
+        label: 'Quản lý đơn hàng',
+        children: [
+            { key: '/admin/orders', icon: <ShoppingOutlined  />, label: 'Đơn hàng' }, 
+            { key: '/admin/order-items', icon: <ReconciliationOutlined  />, label: 'Chi tiết đơn hàng' },
+        ]
+    },
+    {
         key: '/admin/contacts',
         icon: <ContactsOutlined />,
         label: 'Notifications',
@@ -39,16 +48,6 @@ const menuItems = [
         key: '4',
         icon: <UserOutlined />,
         label: 'Account',
-    },
-    {
-        key: '5',
-        icon: <LaptopOutlined />,
-        label: 'Settings',
-    },
-    {
-        key: '6',
-        icon: <ContactsOutlined />,
-        label: 'Notices',
     },
 ]
 
