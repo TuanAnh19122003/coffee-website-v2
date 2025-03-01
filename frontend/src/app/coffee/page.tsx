@@ -3,7 +3,10 @@ import React from 'react'
 
 function HomePage() {
     return (
-        <div>Home User</div>
+        <div className='text-center'>
+            <h1>Home Page</h1>
+            <p>Welcome to our website!</p>
+        </div>
     )
 }
 

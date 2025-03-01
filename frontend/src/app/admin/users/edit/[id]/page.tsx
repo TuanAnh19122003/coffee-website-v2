@@ -54,6 +54,7 @@ function EditUserPage() {
             for (let key in values) {
                 formData.append(key, (values as any)[key]);
             }
+
             if (fileList.length > 0) {
                 formData.append('image', fileList[0].originFileObj as Blob);
             }

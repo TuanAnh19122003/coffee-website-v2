@@ -67,6 +67,8 @@ export class ProductsService {
         }
       }
       product.image = `/uploads/${file.filename}`;
+    }else{
+      updateProductDto.image = product.image;
     }
 
     if (updateProductDto.categoryId) {

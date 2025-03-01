@@ -15,7 +15,6 @@ export class UsersController {
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async create(@Body() createUserDto: CreateUserDto, @UploadedFile() file: Express.Multer.File) {
-    console.log('File created: ', file)
     return this.usersService.create(createUserDto, file);
   }
 
@@ -27,7 +26,6 @@ export class UsersController {
   @Put(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() file?: Express.Multer.File,) {
-    console.log('File updated: ', file)
     return this.usersService.update(+id, updateUserDto, file);
   }
 

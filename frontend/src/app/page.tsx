@@ -1,14 +1,22 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from 'antd';
+import { redirect, useRouter } from 'next/navigation'
 
-const Home = () => (
-  <div className="App">
-    <h1>Hello world</h1>
-    <Button type="primary" href='/admin'>Admin</Button>
-    <Button href="/coffee"> User </Button>
-  </div>
-);
+function page() {
+  const { push } = useRouter();
 
-export default Home;
+  useEffect(() => {
+     push('/coffee');
+  }, []);
+  return (
+    <div className="App">
+      {/* <h1>Hello world</h1>
+      <Button type="primary" href='/admin'>Admin</Button>
+      <Button href="/coffee"> User </Button> */}
+    </div>
+  )
+}
+
+export default page

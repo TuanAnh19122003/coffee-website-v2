@@ -149,9 +149,15 @@ const CreateUserPage = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={loading}>
+                        <Button
+                            className="transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+                            type="primary"
+                            htmlType="submit"
+                            loading={loading}
+                        >
                             Create
                         </Button>
+
                     </Form.Item>
                 </Form>
 

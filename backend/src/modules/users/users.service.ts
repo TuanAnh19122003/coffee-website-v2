@@ -39,38 +39,39 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto, file?: Express.Multer.File,): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto, file?: Express.Multer.File): Promise<User | null> {
     const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
+
     if (file) {
       if (user.image) {
         const oldImagePath = path.join(__dirname, '..', '..', '..', 'public', 'uploads', path.basename(user.image));
-        // console.log("ĐƯờng dẫn ảnh cũ: "+ oldImagePath)
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
-          console.log('ảnh cũ đã được xóa');
+          console.log('Ảnh cũ đã được xóa');
         }
       }
-      user.image = `/uploads/${file.filename}`;
+      updateUserDto.image = `/uploads/${file.filename}`;
+    } else {
+      updateUserDto.image = user.image;
     }
 
-    if (updateUserDto.password && updateUserDto.password.trim() !== '') {
+    if (updateUserDto.password && typeof updateUserDto.password === 'string') {
       const isHashed = updateUserDto.password.startsWith('$2b$');
-
       if (!isHashed) {
-        // console.log('Mật khẩu trước khi mã hóa:', updateUserDto.password);
         updateUserDto.password = await BcryptHelper.hashPassword(updateUserDto.password);
-        // console.log('Mật khẩu sau khi mã hóa:', updateUserDto.password);
       }
     } else {
-      console.log('Không cập nhật mật khẩu, giữ nguyên mật khẩu cũ.');
       delete updateUserDto.password;
     }
-    Object.assign(user, updateUserDto);
-    return await this.userRepository.save(user);
-  }
+
+    await this.userRepository.update(id, updateUserDto);
+
+    return await this.userRepository.findOne({ where: { id } });
+}
+
 
   async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
