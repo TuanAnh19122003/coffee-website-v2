@@ -13,6 +13,7 @@
     "antd": "^5.24.2",
     "axios": "^1.8.1",
     "next": "15.2.0",
+    "numeral": "^2.0.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -20,6 +21,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/numeral": "^2.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

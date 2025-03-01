@@ -13,7 +13,7 @@ export class UserrolesService {
     private userroleRepository: Repository<UserRole>,
     private usersService: UsersService,
     private rolesService: RolesService,
-  ) {}
+  ) { }
 
   async findAll() {
     return await this.userroleRepository.find({
@@ -22,7 +22,7 @@ export class UserrolesService {
   }
   async create(createUserroleDto: CreateUserroleDto): Promise<UserRole> {
     const userRole = new UserRole();
-  
+
     if (createUserroleDto.roleId) {
       const role = await this.rolesService.findOne(createUserroleDto.roleId);
       if (!role) {
@@ -30,7 +30,7 @@ export class UserrolesService {
       }
       userRole.role = role;
     }
-    
+
     if (createUserroleDto.userId) {
       const user = await this.usersService.findOne(createUserroleDto.userId);
       if (!user) {
@@ -57,9 +57,11 @@ export class UserrolesService {
 
   async update(id: number, updateUserroleDto: UpdateUserroleDto): Promise<UserRole> {
     const userRole = await this.findOne(id);
-    if(!userRole) {
+    if (!userRole) {
       throw new Error('User role not found');
     }
+
+    // Xử lý roleId nếu có
     if (updateUserroleDto.roleId) {
       const role = await this.rolesService.findOne(updateUserroleDto.roleId);
       if (!role) {
@@ -67,6 +69,8 @@ export class UserrolesService {
       }
       userRole.role = role;
     }
+
+    // Xử lý userId nếu có
     if (updateUserroleDto.userId) {
       const user = await this.usersService.findOne(updateUserroleDto.userId);
       if (!user) {
@@ -74,10 +78,12 @@ export class UserrolesService {
       }
       userRole.user = user;
     }
-    return this.userroleRepository.save(userRole);
+    // Cập nhật tất cả các trường khác
+    Object.assign(userRole, updateUserroleDto);
+    return await this.userroleRepository.save(userRole);
   }
 
-  async remove(id: number): Promise<void>{
+  async remove(id: number): Promise<void> {
     await this.userroleRepository.delete(id);
   }
 }

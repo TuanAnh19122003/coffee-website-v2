@@ -25,7 +25,7 @@ const menuItems = [
         children: [
             { key: '/admin/categories', icon: <TagsOutlined />, label: 'Loại sản phẩm' }, 
             { key: '/admin/products', icon: <ShoppingCartOutlined />, label: 'Sản phẩm' },
-            { key: '/admin/sizes', icon: <ColumnWidthOutlined />, label: 'Size' },
+            { key: '/admin/product-sizes', icon: <ColumnWidthOutlined />, label: 'Size' },
             { key: '/admin/special-products', icon: <StarOutlined />, label: 'Sản phẩm đặc biệt' },
         ]
     },

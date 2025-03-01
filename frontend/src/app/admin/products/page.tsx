@@ -4,7 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined  } from '@ant-design/icons';
 import { Product } from '../interfaces/Product';
 
 
@@ -168,7 +168,7 @@ function ProductsPage() {
             {/* Modal hiển thị chi tiết */}
             <Modal
                 open={open}
-                title={<Title level={4}><IdcardOutlined /> User Details</Title>}
+                title={<Title level={4}><ShoppingOutlined  /> Details of Product {selectedProduct?.name || ''}</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered

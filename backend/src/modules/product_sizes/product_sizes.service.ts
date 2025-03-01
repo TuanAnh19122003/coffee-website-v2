@@ -3,30 +3,69 @@ import { Repository } from 'typeorm';
 import { CreateProductSizeDto } from './dto/create-product_size.dto';
 import { UpdateProductSizeDto } from './dto/update-product_size.dto';
 import { ProductSize } from 'src/database/entities/product_size.entity';
+import { ProductsService } from '../products/products.service';
 
 @Injectable()
 export class ProductSizesService {
   constructor(
     @Inject('PRODUCT_SIZE_REPOSITORY')
     private productSizeRepository: Repository<ProductSize>,
-  ) {}
-  create(createProductSizeDto: CreateProductSizeDto) {
-    return 'This action adds a new productSize';
+    private productsService: ProductsService,
+  ) { }
+
+  async findAll() {
+    const productSize = this.productSizeRepository.find({
+      relations: ['product'],
+    });
+    return productSize;
   }
 
-  findAll() {
-    return `This action returns all productSizes`;
+  async create(createProductSizeDto: CreateProductSizeDto): Promise<ProductSize> {
+    const productSize = this.productSizeRepository.create(createProductSizeDto);
+    if (createProductSizeDto.productId) {
+      const product = await this.productsService.findOne(createProductSizeDto.productId);
+      if (!product) {
+        throw new Error('Product not found');
+      }
+      productSize.product = product;
+    }
+    return await this.productSizeRepository.save(productSize);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} productSize`;
+  async findOne(id: number): Promise<ProductSize | null> {
+    const productSize = this.productSizeRepository.findOne({
+      where: { id },
+      relations: ['product'],
+    })
+    if (!productSize) {
+      throw new Error('Product size not found');
+    }
+    return productSize;
   }
 
-  update(id: number, updateProductSizeDto: UpdateProductSizeDto) {
-    return `This action updates a #${id} productSize`;
+  async update(id: number, updateProductSizeDto: UpdateProductSizeDto): Promise<ProductSize> {
+    const productSize = await this.findOne(id);
+    if (!productSize) {
+      throw new Error('Product size not found');
+    }
+
+    // Cập nhật tất cả các trường khác
+    Object.assign(productSize, updateProductSizeDto);
+
+    // Xử lý productId nếu có
+    if (updateProductSizeDto.productId) {
+      const product = await this.productsService.findOne(updateProductSizeDto.productId);
+      if (!product) {
+        throw new Error('Product not found');
+      }
+      productSize.product = product;
+    }
+
+    return await this.productSizeRepository.save(productSize);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} productSize`;
+
+  async remove(id: number): Promise<void> {
+    await this.productSizeRepository.delete(id);
   }
 }

@@ -76,9 +76,8 @@ export class ProductsService {
       }
       product.category = category;
     }
-
-    await this.productRepository.save(product);
-    return product;
+    Object.assign(product, updateProductDto);
+    return await this.productRepository.save(product);
   }
 
 

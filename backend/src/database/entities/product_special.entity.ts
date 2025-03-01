@@ -12,12 +12,12 @@ export class ProductSpecial {
     @Column()
     special_name: string;
 
-    @Column("decimal", { precision: 5, scale: 2 })
-    discount_percentage: number;
+    @Column("decimal", { precision: 5, scale: 2, nullable: true, default: 0 })
+    discount_percentage: number;    
 
-    @Column({ type: "datetime", nullable: true })
+    @Column({ type: "datetime" })
     start_date: Date;
 
-    @Column({ type: "datetime", nullable: true })
+    @Column({ type: "datetime"})
     end_date: Date;
 }
