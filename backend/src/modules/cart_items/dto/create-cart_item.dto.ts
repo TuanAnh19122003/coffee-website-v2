@@ -1,7 +1,7 @@
 export class CreateCartItemDto {
     quantity: number;
     price: number;
-    cardId: number;
+    cartId: number;
     productId: number;
     sizeId: number;
 }
