@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
+import * as session from 'express-session';
 
 dotenv.config(); // Load environment variables from.env file
 
@@ -16,7 +17,18 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
 
-  
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || '123',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24,
+      },
+    })
+  )
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3001',

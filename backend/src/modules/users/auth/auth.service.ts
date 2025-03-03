@@ -15,8 +15,8 @@ export class AuthService {
     ) { }
     async validateUser(email: string, password: string) {
         const user = await this.usersService.findByEmail(email);
-        console.log(user?.userRoles?.map(ur => ur.role.name));
-        console.log("User found:", user);
+        // console.log(user?.userRoles?.map(ur => ur.role.name));
+        // console.log("User found:", user, user?.userRoles?.map(ur => ur.role.name));
         
         if (!user) throw new UnauthorizedException('Tài khoản không tồn tại');
     
@@ -36,7 +36,6 @@ export class AuthService {
     async register(createUserDto: CreateUserDto) {
         const { email, password, firstname, lastname } = createUserDto;
 
-        // Kiểm tra email đã tồn tại chưa
         const existingUser = await this.usersService.findByEmail(email);
         if (existingUser) {
             throw new BadRequestException('Email đã được sử dụng');
@@ -44,7 +43,6 @@ export class AuthService {
 
         const newUser = await this.usersService.create({
             ...createUserDto,
-            image: '/img/default.jpg',
         });
         const newUserRole = await this.userrolesService.create({
             userId: newUser.id,

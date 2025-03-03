@@ -1,12 +1,49 @@
 "use client";
-import React from "react";
-import { Input, Space, Avatar, Dropdown, Menu } from "antd";
+import { useState, useEffect } from "react";
+import { Input, Space, Avatar, Dropdown, Menu, message } from "antd";
 import { UserOutlined, BellOutlined, SettingOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+
+import { User } from "@/app/admin/interfaces/User";
+import { usePathname } from "next/navigation";
 
 const { Search } = Input;
 
 function Header() {
+    const pathname = usePathname();
+    const router = useRouter();
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/user`, {
+                    credentials: "include",
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUser(data.user);
+                }
+            } catch (error) {
+                console.error("Error fetching user:", error);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
+            message.success('Đăng xuất thành công');
+            setUser(null);
+            router.push('/coffee/auth/login');
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
     const menuItems = [
         {
             key: '1',
@@ -27,7 +64,8 @@ function Header() {
             key: '4',
             icon: <UserOutlined />,
             label: 'Đăng xuất',
-            danger: true
+            danger: true,
+            onClick: handleLogout,
         },
     ]
 
@@ -47,12 +85,23 @@ function Header() {
                 </div>
                 <BellOutlined className="text-xl mr-4 cursor-pointer hover:text-gray-500 transition ease-in-out duration-300" />
 
-                <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md transition ease-in-out duration-300">
-                        <Avatar size="large" src="/anh-cv.jpg" className="hover:opacity-80 transition duration-200" />
-                        <span className="font-medium hidden sm:inline text-black">Nguyễn Văn A</span>
+                {user ? (
+                    <div className="flex items-center space-x-2">
+                        <span className="font-medium">{user.lastname} {user.firstname}</span>
+                        <Dropdown menu={{ items: menuItems, style: { minWidth: "150px" } }} placement="bottomLeft">
+                            <Avatar
+                                src={user.image?.startsWith("http") ? user.image : `${process.env.NEXT_PUBLIC_API_URL}${user.image}`}
+                                size={40}
+                                icon={<UserOutlined />}
+                                className="cursor-pointer"
+                            />
+                        </Dropdown>
                     </div>
-                </Dropdown>
+                ) : (
+                    <Link href="/coffee/auth/login">
+                        <UserOutlined className="text-2xl text-gray-700 hover:text-blue-500 cursor-pointer" />
+                    </Link>
+                )}
             </div>
         </header>
     );

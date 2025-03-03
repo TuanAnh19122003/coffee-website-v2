@@ -23,14 +23,18 @@ function LoginPage() {
                 const user = response.data.user;
                 message.success({ content: "Đăng nhập thành công!", key: "login" });
                 setTimeout(() => {
-                    router.replace("/coffee");
+                    if (user.role.includes("Admin")) {
+                        router.replace("/admin");
+                    } else {
+                        window.location.href = "/coffee";
+                    }
                 }, 1000);
             }
         } catch (error: any) {
             message.error({ content: "Sai email hoặc mật khẩu!", key: "login" });
             return;
         }
-         finally {
+        finally {
             setLoading(false);
         }
     };
@@ -64,7 +68,7 @@ function LoginPage() {
                 </Form>
                 <div className="text-center mt-4">
                     <Text className="text-gray-500">
-                        Chưa có tài khoản? <Link href="/auth/register" className="text-blue-500 hover:underline">Đăng ký</Link>
+                        Chưa có tài khoản? <Link href="/coffee/auth/register" className="text-blue-500 hover:underline">Đăng ký</Link>
                     </Text>
                 </div>
             </Card>
