@@ -17,32 +17,39 @@ function CreateUserRolePage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const role = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/roles`);
-                const user = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-                setRoles(role.data);
-                setUser(user.data);
+                const roleRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/roles`);
+                const userRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
+                console.log('Roles:', roleRes.data);
+                console.log('Users:', userRes.data);
+    
+                setRoles(roleRes.data);
+                setUser(userRes.data);
             } catch (error) {
-                console.error(error);
+                console.error('Lỗi khi lấy dữ liệu:', error);
+                message.error('Không thể tải danh sách users hoặc roles!');
             }
         };
         fetchData();
     }, []);
+    
 
-    const onFinish = async (values: UserRole) => {
+    const onFinish = async (values: any) => {
         setLoading(true);
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/userroles`, {
-                roleId: values.role,
-                userId: values.user,
+                roleId: values.roleId,  // Đổi lại key cho đúng
+                userId: values.userId,
             });
             message.success('Tạo role thành công!');
             router.push('/admin/userRoles');
         } catch (error) {
+            console.error(error);
             message.error('Lỗi khi tạo role, vui lòng thử lại!');
         } finally {
             setLoading(false);
         }
     };
+    
     
     return (
         <div className='bg-white rounded-b-lg'>

@@ -5,6 +5,7 @@ import { Layout, theme } from "antd";
 import { AppHeader } from '@/components/user/Header';
 import { AppFooter } from '@/components/user/Footer';
 import { usePathname } from 'next/navigation';
+import '@ant-design/v5-patch-for-react-19';
 
 const { Content } = Layout;
 

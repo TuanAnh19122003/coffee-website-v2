@@ -21,26 +21,27 @@ export class UserrolesService {
     });
   }
   async create(createUserroleDto: CreateUserroleDto): Promise<UserRole> {
-    const userRole = new UserRole();
+    const { userId, roleId } = createUserroleDto;
 
-    if (createUserroleDto.roleId) {
-      const role = await this.rolesService.findOne(createUserroleDto.roleId);
-      if (!role) {
-        throw new Error('Role not found');
-      }
-      userRole.role = role;
+    if (!userId || !roleId) {
+      throw new Error('Thiếu userId hoặc roleId');
     }
 
-    if (createUserroleDto.userId) {
-      const user = await this.usersService.findOne(createUserroleDto.userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-      userRole.user = user;
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new Error(`Không tìm thấy user với id = ${userId}`);
     }
 
-    return this.userroleRepository.save(userRole);
+    const role = await this.rolesService.findOne(roleId);
+    if (!role) {
+      throw new Error(`Không tìm thấy role với id = ${roleId}`);
+    }
+
+    const userRole = this.userroleRepository.create({ user, role });
+
+    return await this.userroleRepository.save(userRole);
   }
+
 
 
 

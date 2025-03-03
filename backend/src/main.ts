@@ -16,6 +16,8 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
 
+  
+
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
     credentials: true,

@@ -31,6 +31,13 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { email },
+      relations: ['userRoles.role','userRoles'],
+    });
+  }
+
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } })
     if (!user) {
@@ -70,7 +77,7 @@ export class UsersService {
     await this.userRepository.update(id, updateUserDto);
 
     return await this.userRepository.findOne({ where: { id } });
-}
+  }
 
 
   async remove(id: number): Promise<void> {

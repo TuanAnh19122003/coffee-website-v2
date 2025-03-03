@@ -20,7 +20,7 @@ export const AppHeader = () => {
         { key: "/", label: "Home", icon: <HomeOutlined /> },
         { key: "/coffee/about", label: "About", icon: <InfoCircleOutlined /> },
         { key: "/coffee/products", label: "Products", icon: <AppstoreOutlined /> },
-        { key: "/coffee/feedback", label: "Feedback", icon: <MessageOutlined /> },
+        { key: "/coffee/contact", label: "Contact", icon: <MessageOutlined /> },
     ];
 
     const currentKey = menuItems.find((item) => pathname.startsWith(item.key))?.key || "/";
@@ -51,7 +51,7 @@ export const AppHeader = () => {
                         <ShoppingCartOutlined className="text-2xl text-gray-700 hover:text-blue-500 cursor-pointer" />
                     </Badge>
                 </Link>
-                <Link href="/login">
+                <Link href="/coffee/auth/login">
                     <UserOutlined className="text-2xl text-gray-700 hover:text-blue-500 cursor-pointer" />
                 </Link>
             </div>
