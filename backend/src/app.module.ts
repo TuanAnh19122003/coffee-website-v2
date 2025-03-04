@@ -14,9 +14,10 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { OrderItemsModule } from './modules/order_items/order_items.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { AuthModule } from './modules/users/auth/auth.module';
+import { SpecialsModule } from './modules/specials/specials.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, RolesModule, UserrolesModule, CategoriesModule, ProductsModule, ProductSizesModule, ProductSpecialsModule, CartModule, CartItemsModule, OrdersModule, OrderItemsModule, ContactsModule],
+  imports: [UsersModule, AuthModule, RolesModule, UserrolesModule, CategoriesModule, ProductsModule, ProductSizesModule, ProductSpecialsModule, CartModule, CartItemsModule, OrdersModule, OrderItemsModule, ContactsModule, SpecialsModule],
   controllers: [AppController],
   providers: [AppService],
 })

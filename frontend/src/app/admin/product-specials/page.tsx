@@ -2,21 +2,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
+import { Button, Space, Table, Modal, message, Descriptions, Typography, Card } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Product_special } from '../interfaces/Product_special';
-import numeral from 'numeral';
-
 
 const { Title, Text } = Typography;
 
-function producrSpecialPage() {
+
+function ProductSpecialPage() {
     const [data, setData] = useState<Product_special[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [open, setOpen] = useState(false);
+
+    const [modalVisible, setModalVisible] = useState(false);
     const [selectedProductSpecial, setSelectedProductSpecial] = useState<Product_special | null>(null);
 
     useEffect(() => {
@@ -24,9 +24,10 @@ function producrSpecialPage() {
             setLoading(true);
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product-specials`);
+                console.log('Dữ liệu API:', response.data);
                 setData(response.data);
-            } catch (error) {
-                setError('Error fetching data');
+            } catch (error: any) {
+                setError(error.message);
             } finally {
                 setLoading(false);
             }
@@ -34,28 +35,36 @@ function producrSpecialPage() {
         fetchData();
     }, []);
 
-    const handleDelete = async (product_specId: number) => {
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleDelete = async (userRoleId: number) => {
         Modal.confirm({
-            title: 'Bạn có chắc chắn muốn xóa khuyến mãi sản phẩm này?',
+            title: 'Bạn có chắc chắn muốn xóa user role này?',
             onOk: async () => {
                 try {
-                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product-sizes/${product_specId}`);
-                    setData((prevData) => prevData.filter((product_special) => product_special.id !== product_specId));
-                    message.success('Khuyến mãiSản phẩm đã được xóa thành công!');
+                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product-specials/${userRoleId}`);
+                    setData((prevData) => prevData.filter((user) => user.id !== userRoleId));
+                    message.success('Sản phẩm đã được xóa thành công!');
                 } catch (error) {
-                    message.error('Lỗi khi xóa khuyến mãi sản phẩm! Vui lòng thử lại.');
+                    message.error('Lỗi khi xóa sản phẩm đặt biệt! Vui lòng thử lại.');
                 }
             },
         });
     };
 
-    const handleViewDetails = (product_special: Product_special) => {
-        setSelectedProductSpecial(product_special);
-        setOpen(true);
-    };
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
+    const handleViewDetail = async (id: number) => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product-specials/${id}`);
+            setSelectedProductSpecial(response.data);
+            setModalVisible(true);
+        } catch (error) {
+            message.error('Lỗi khi tải dữ liệu chi tiết!');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const columns: TableProps<Product_special>['columns'] = [
@@ -65,21 +74,16 @@ function producrSpecialPage() {
             render: (_, __, index) => (currentPage - 1) * 5 + index + 1,
         },
         {
-            title: 'Title',
-            dataIndex: 'special_name',
-            key: 'special_name',
-        },
-        {
-            title: 'Discount',
-            dataIndex: 'discount_percentage',
-            key: 'discount_percentage',
-            render: (price) => numeral(price).format('0,0') + ' %',
-        },
-        {
             title: 'Product',
             dataIndex: 'product',
             key: 'product',
-            render: (product) => product?.name || 'N/A',
+            render: (product, record) => (record.product ? `${record.product.name}` : 'N/A'),
+        },
+        {
+            title: 'Special',
+            dataIndex: 'special',
+            key: 'special',
+            render: (special, record) => (record.special ? record.special.special_name : 'N/A'),
         },
         {
             title: 'Action',
@@ -94,7 +98,7 @@ function producrSpecialPage() {
                     <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(record.id)}>
                         Delete
                     </Button>
-                    <Button icon={<EyeOutlined />} size="small" onClick={() => handleViewDetails(record)}>
+                    <Button icon={<EyeOutlined />} size="small" onClick={() => handleViewDetail(record.id)}>
                         Detail
                     </Button>
                 </Space>
@@ -106,19 +110,19 @@ function producrSpecialPage() {
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="h3 mb-0 text-gray-800">Product Special List</h1>
+        <div className="card-mt2">
+            <div className="flex items-center justify-between border-b pb-3 mb-4">
+                <Title level={3} className="text-gray-800">Product Special List</Title>
                 <Link href="/admin/product-specials/create">
                     <Button type="primary" icon={<PlusOutlined />}>
                         New
                     </Button>
                 </Link>
             </div>
-            <Table
+            <Table<Product_special>
                 columns={columns}
                 dataSource={data}
-                rowKey='id'
+                rowKey="id"
                 pagination={{
                     pageSize: 5,
                     showSizeChanger: true,
@@ -127,36 +131,35 @@ function producrSpecialPage() {
                     onChange: handlePageChange,
                 }}
             />
-            {/* Modal hiển thị chi tiết Product Special */}
+
+            {/* Modal Chi Tiết */}
             <Modal
-                open={open}
-                title={<Title level={4}><ShoppingOutlined /> Details of Product {selectedProductSpecial?.product.name || ''}</Title>}
-                footer={null}
-                onCancel={() => setOpen(false)}
+                title={<Title level={4}><IdcardOutlined /> Chi Tiết User Role</Title>}
+                open={modalVisible}
+                onCancel={() => setModalVisible(false)}
+                footer={[
+                    <Button key="close" onClick={() => setModalVisible(false)}>
+                        Đóng
+                    </Button>,
+                ]}
                 centered
-                width={500} // Đặt chiều rộng cố định
             >
                 {selectedProductSpecial ? (
-                    <Card
-                        style={{
-                            background: '#fff',
-                            borderRadius: 10,
-                            padding: 20,
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                        }}
-                    >
-                        {/* Thông tin chi tiết */}
-                        <Descriptions column={1} bordered size="small">
-                            <Descriptions.Item label="ID">{selectedProductSpecial.id}</Descriptions.Item>
-                            <Descriptions.Item label="Special Name">{selectedProductSpecial.special_name}</Descriptions.Item>
-                            <Descriptions.Item label="Discount">
-                                {
-                                    selectedProductSpecial.discount_percentage ? numeral(selectedProductSpecial.discount_percentage).format('0,0') + ' %' : 'N/A'
-                                }
+                    <Card variant='outlined' style={{ background: '#f9f9f9', borderRadius: 10, padding: 20 }}>
+                        <Descriptions column={1} bordered>
+                            <Descriptions.Item label="ID"><Text>{selectedProductSpecial.id}</Text></Descriptions.Item>
+                            <Descriptions.Item label="User">
+                                {selectedProductSpecial.product
+                                    ? <Text>{`${selectedProductSpecial.product.name}`}</Text>
+                                    : <Text type="secondary">N/A</Text>}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Product"> {selectedProductSpecial.product.name}</Descriptions.Item>
-                            <Descriptions.Item label="Start Date">{new Date(selectedProductSpecial.start_date).toLocaleString()}</Descriptions.Item>
-                            <Descriptions.Item label="End Date">{new Date(selectedProductSpecial.end_date).toLocaleString()}</Descriptions.Item>
+                            <Descriptions.Item label="Role">
+                                {selectedProductSpecial.special
+                                    ? <Text>{selectedProductSpecial.special.special_name}</Text>
+                                    : <Text type="secondary">N/A</Text>}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Start Date">{new Date(selectedProductSpecial.special.start_date).toLocaleString()}</Descriptions.Item>
+                            <Descriptions.Item label="End Date">{new Date(selectedProductSpecial.special.end_date).toLocaleString()}</Descriptions.Item>
                         </Descriptions>
                     </Card>
                 ) : (
@@ -167,4 +170,4 @@ function producrSpecialPage() {
     )
 }
 
-export default producrSpecialPage
+export default ProductSpecialPage

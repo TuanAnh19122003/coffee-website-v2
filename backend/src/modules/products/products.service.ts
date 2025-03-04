@@ -3,7 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
 import { Product } from 'src/database/entities/product.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -80,6 +80,12 @@ export class ProductsService {
     }
     Object.assign(product, updateProductDto);
     return await this.productRepository.save(product);
+  }
+
+  async findByIds(ids: number[]): Promise<Product[]> {
+    return await this.productRepository.find({
+      where: { id: In(ids) },
+    });
   }
 
 

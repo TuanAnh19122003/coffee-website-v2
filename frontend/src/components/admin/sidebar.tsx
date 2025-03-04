@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { ShoppingOutlined, ReconciliationOutlined, SafetyOutlined, AppstoreOutlined, ContactsOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined, OrderedListOutlined  } from "@ant-design/icons";
+import { ShoppingOutlined, ReconciliationOutlined, SafetyOutlined, AppstoreOutlined, ContactsOutlined, UserOutlined, KeyOutlined, ColumnWidthOutlined, ShoppingCartOutlined, StarOutlined, TagsOutlined, OrderedListOutlined, AppstoreAddOutlined, GiftOutlined  } from "@ant-design/icons";
 
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
@@ -26,18 +26,17 @@ const menuItems = [
             { key: '/admin/categories', icon: <TagsOutlined />, label: 'Loại sản phẩm' }, 
             { key: '/admin/products', icon: <ShoppingCartOutlined />, label: 'Sản phẩm' },
             { key: '/admin/product-sizes', icon: <ColumnWidthOutlined />, label: 'Size' },
-            { key: '/admin/product-specials', icon: <StarOutlined />, label: 'Sản phẩm đặc biệt' },
         ]
     },
     {
         key: '3',
-        icon: <OrderedListOutlined />,
-        label: 'Quản lý đơn hàng',
+        icon: <AppstoreAddOutlined />, // Biểu tượng AppstoreAdd có thể phù hợp hơn cho quản lý khuyến mãi
+        label: 'Quản lý khuyến mãi',
         children: [
-            { key: '/admin/orders', icon: <ShoppingOutlined  />, label: 'Đơn hàng' }, 
-            { key: '/admin/order-items', icon: <ReconciliationOutlined  />, label: 'Chi tiết đơn hàng' },
+            { key: '/admin/specials', icon: <GiftOutlined />, label: 'Khuyến mãi' }, // Gift là biểu tượng dành cho khuyến mãi
+            { key: '/admin/product-specials', icon: <TagsOutlined />, label: 'Sản phẩm đặc biệt' }, // Tags phù hợp cho sản phẩm đặc biệt
         ]
-    },
+    },    
     {
         key: '/admin/contacts',
         icon: <ContactsOutlined />,
@@ -45,7 +44,7 @@ const menuItems = [
         
     },
     {
-        key: '4',
+        key: '5',
         icon: <UserOutlined />,
         label: 'Account',
     },
