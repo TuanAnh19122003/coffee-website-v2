@@ -57,9 +57,9 @@ function Header() {
         },
         {
             key: '3',
-            icon: <BellOutlined />,
-            label: 'Thông báo',
-        },
+            icon: <UserOutlined />, // Đổi icon thành User
+            label: <a href="/coffee">UsePage</a>, // Chuyển hướng đến trang user
+        },        
         {
             key: '4',
             icon: <UserOutlined />,

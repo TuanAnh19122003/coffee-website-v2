@@ -59,7 +59,7 @@ export const AppHeader = () => {
         { key: "/coffee/contact", label: "Contact", icon: <MessageOutlined /> },
     ];
 
-    const isAdmin = user?.userRoles?.some(ur => ur.role.id === 1);
+    const isAdmin = user?.role?.includes("Admin");
 
     const userMenuItems: MenuProps["items"] = [
         {
@@ -73,8 +73,8 @@ export const AppHeader = () => {
             icon: <SettingOutlined />,
         },
         ...(isAdmin ? [{
-            key: "admin",
-            label: <Link href="/admin/dashboard">Admin Dashboard</Link>,
+            key: "Admin",
+            label: <Link href="/admin">Admin Dashboard</Link>,
             icon: <DashboardOutlined />,
         }] : []),
         {
