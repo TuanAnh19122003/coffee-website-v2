@@ -64,7 +64,7 @@ export const AppHeader = () => {
     const userMenuItems: MenuProps["items"] = [
         {
             key: "profile",
-            label: <Link href="/profile">Profile</Link>,
+            label: <Link href="/coffee/profile">Profile</Link>,
             icon: <UserOutlined />,
         },
         {

@@ -1,14 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, Session, Req, Res, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, Session, Req, Res, UnauthorizedException, InternalServerErrorException, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from '../users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import session from 'express-session';
+import { multerConfig } from 'src/config/multer-config';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private usersService: UsersService,
+    ) { }
 
     @Post('login')
     async login(@Body() loginDto: CreateUserDto, @Res() res: Response, @Req() req: Request) {
@@ -68,5 +73,37 @@ export class AuthController {
     @Get('/user')
     async getUser(@Session() session) {
         return { user: session.user || null };
+    }
+
+    @Get('/me')
+    async getProfile(@Req() req: Request) {
+        if (!(req as any).session || !(req as any).session.user) {
+            throw new UnauthorizedException('Chưa đăng nhập');
+        }
+
+        return { user: (req as any).session.user };
+    }
+    @Post('/me')
+    @UseInterceptors(FileInterceptor('image', multerConfig))  // Sử dụng cấu hình multer đã tạo
+    async updateProfile(
+        @Body() updateUserDto: UpdateUserDto,
+        @Req() req: Request,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        const userId = (req as any).session.user.id;
+
+        // Kiểm tra xem có file ảnh gửi lên không
+        if (file) {
+            const filePath = `/uploads/${file.filename}`;
+            updateUserDto.image = filePath; // Lưu đường dẫn ảnh vào DTO
+        }
+
+        // Cập nhật thông tin người dùng
+        const updatedUser = await this.usersService.update(userId, updateUserDto, file);
+
+        // Cập nhật lại session với thông tin người dùng mới
+        (req as any).session.user = updatedUser;
+
+        return { user: updatedUser };
     }
 }
