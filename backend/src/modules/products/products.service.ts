@@ -18,11 +18,47 @@ export class ProductsService {
   ) { }
 
   async findAll() {
-    const products = await this.productRepository.find({
-      relations: ['category'],
-    })
-    return products;
+    return await this.productRepository.find();
   }
+
+  async findProductsByCategory(categoryId?: number) {
+    const whereCondition = categoryId ? { category: { id: categoryId } } : {};
+    console.log("whereCondition:", whereCondition);
+
+    const products = await this.productRepository.find({
+      where: whereCondition,
+      relations: ['category', 'sizes', 'specials.special'],
+    });
+
+    console.log("Danh sách sản phẩm:", products);
+
+    return products.map((product) => {
+      let defaultSize = product.sizes.find((size) => size.size === 'S') || product.sizes[0];
+      const originalPrice = defaultSize ? defaultSize.price : 0;
+
+      const activeSpecial = product.specials?.find(
+        (ps) => ps.special && ps.special.start_date <= new Date() && ps.special.end_date >= new Date()
+      );
+
+      const discountPercentage = activeSpecial?.special?.discount_percentage ?? 0;
+      const discountedPrice = originalPrice * (1 - discountPercentage / 100);
+
+      return {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        image: product.image,
+        size: defaultSize ? defaultSize.size : 'N/A',
+        original_price: originalPrice,
+        discounted_price: discountedPrice,
+        special_name: activeSpecial?.special?.special_name || 'Không có khuyến mãi',
+        start_date: activeSpecial?.special?.start_date || null,
+        end_date: activeSpecial?.special?.end_date || null
+      };
+    });
+  }
+
+
 
   async create(createProductDto: CreateProductDto, file?: Express.Multer.File): Promise<Product> {
 
@@ -44,13 +80,14 @@ export class ProductsService {
   async findOne(id: number): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
-      relations: ['category'],
+      relations: ['category', 'sizes', 'specials.special'],
     });
     if (!product) {
       throw new Error('Product not found');
     }
     return product;
   }
+  
 
   async update(id: number, updateProductDto: UpdateProductDto, file?: Express.Multer.File): Promise<Product> {
     const product = await this.findOne(id);
@@ -67,7 +104,7 @@ export class ProductsService {
         }
       }
       product.image = `/uploads/${file.filename}`;
-    }else{
+    } else {
       updateProductDto.image = product.image;
     }
 

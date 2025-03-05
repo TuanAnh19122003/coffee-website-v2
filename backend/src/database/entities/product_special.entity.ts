@@ -10,6 +10,6 @@ export class ProductSpecial {
     @ManyToOne(() => Product, product => product.specials, { onDelete: 'CASCADE' })
     product: Product;
 
-    @ManyToOne(() => Special, special => special.productSpecials, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Special, special => special.productSpecials, { onDelete: 'CASCADE',eager: true })
     special: Special;
 }

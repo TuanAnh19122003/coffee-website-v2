@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -8,20 +8,24 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
   @Get()
-  findAll() {
+  findAll(@Query('categoryId') categoryId?: number) {
+    if (categoryId) {
+      return this.productsService.findProductsByCategory(categoryId);
+    }
     return this.productsService.findAll();
   }
+  
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   create(@Body() createProductDto: CreateProductDto, @UploadedFile() file: Express.Multer.File) {
-    console.log('File created: ', file)
     return this.productsService.create(createProductDto, file);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);
   }
+  
 
   @Put(':id')
   @UseInterceptors(FileInterceptor('image'))
