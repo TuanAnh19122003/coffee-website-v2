@@ -5,4 +5,5 @@ export interface Product_size{
     size: string;
     price: number;
     product: Product;
+    discounted_price?: number;
 }

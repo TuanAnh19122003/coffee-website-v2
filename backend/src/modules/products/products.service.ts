@@ -7,8 +7,6 @@ import { In, Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 
-
-
 @Injectable()
 export class ProductsService {
   constructor(
@@ -77,17 +75,47 @@ export class ProductsService {
 
   }
 
-  async findOne(id: number): Promise<Product> {
+  async findOne(id: number): Promise<any> {
     const product = await this.productRepository.findOne({
       where: { id },
       relations: ['category', 'sizes', 'specials.special'],
     });
+
     if (!product) {
       throw new Error('Product not found');
     }
-    return product;
+
+    let defaultSize = product.sizes.find(size => size.size === 'S') || product.sizes[0];
+    const originalPrice = defaultSize ? defaultSize.price : 0;
+
+    const activeSpecial = product.specials?.find(
+      (ps) => ps.special && ps.special.start_date <= new Date() && ps.special.end_date >= new Date()
+    );
+
+    const discountPercentage = activeSpecial?.special?.discount_percentage ?? 0;
+    const discountedPrice = discountPercentage > 0 ? originalPrice * (1 - discountPercentage / 100) : null;
+
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      image: product.image,
+      category: product.category,
+      sizes: product.sizes.map(size => ({
+        size: size.size,
+        price: size.price,
+        discounted_price: discountPercentage > 0 ? size.price * (1 - discountPercentage / 100) : null
+      })),
+      default_size: defaultSize ? defaultSize.size : 'N/A',
+      original_price: originalPrice,
+      discounted_price: discountedPrice,
+      special_name: activeSpecial?.special?.special_name || 'Không có khuyến mãi',
+      start_date: activeSpecial?.special?.start_date || null,
+      end_date: activeSpecial?.special?.end_date || null,
+    };
   }
-  
+
+
 
   async update(id: number, updateProductDto: UpdateProductDto, file?: Express.Multer.File): Promise<Product> {
     const product = await this.findOne(id);
