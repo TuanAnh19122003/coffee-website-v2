@@ -2,7 +2,7 @@ import { Category } from "./Category";
 import { Product_size } from "./Product_size";
 
 export interface Product {
-    id: string;
+    id: number;
     name: string;
     description?: string;
     image?: string;

@@ -4,7 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined  } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { Product } from '../interfaces/Product';
 
 
@@ -19,12 +19,12 @@ function ProductsPage() {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-    // Fetch danh sách sản phẩm
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+                console.log("Product data:", response.data);  // Kiểm tra dữ liệu trả về từ API
                 setData(response.data);
             } catch (error: any) {
                 setError(error.message);
@@ -35,7 +35,7 @@ function ProductsPage() {
         fetchData();
     }, []);
 
-    // Fetch danh sách danh mục
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -57,7 +57,7 @@ function ProductsPage() {
             onOk: async () => {
                 try {
                     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`);
-                    setData((prevData) => prevData.filter((product) => product.id !== productId));
+                    setData((prevData) => prevData.filter((product) => Number(product.id) !== productId));
                     message.success('Sản phẩm đã được xóa thành công!');
                 } catch (error) {
                     message.error('Lỗi khi xóa sản phẩm! Vui lòng thử lại.');
@@ -65,6 +65,7 @@ function ProductsPage() {
             },
         });
     };
+
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -105,13 +106,7 @@ function ProductsPage() {
             title: 'Category',
             dataIndex: 'category',
             key: 'category',
-            render: (category) => category?.name || 'N/A',
-        },
-        {
-            title: 'Created At',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            render: (date) => new Date(date).toLocaleString(),
+            render: (category) => category && category.name ? category.name : 'N/A',
         },
         {
             title: 'Updated At',
@@ -168,7 +163,7 @@ function ProductsPage() {
             {/* Modal hiển thị chi tiết */}
             <Modal
                 open={open}
-                title={<Title level={4}><ShoppingOutlined  /> Details of Product {selectedProduct?.name || ''}</Title>}
+                title={<Title level={4}><ShoppingOutlined /> Details of Product {selectedProduct?.name || ''}</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
@@ -205,7 +200,9 @@ function ProductsPage() {
                             <Descriptions.Item label="ID">{selectedProduct.id}</Descriptions.Item>
                             <Descriptions.Item label="Name">{selectedProduct.name}</Descriptions.Item>
                             <Descriptions.Item label="Description">{selectedProduct.description}</Descriptions.Item>
-                            <Descriptions.Item label="Category"> {selectedProduct.category.name}</Descriptions.Item>
+                            <Descriptions.Item label="Category">
+                                {selectedProduct?.category?.name || 'N/A'}
+                            </Descriptions.Item>
 
                             <Descriptions.Item label="Created At">{new Date(selectedProduct.createdAt).toLocaleString()}</Descriptions.Item>
                             <Descriptions.Item label="Updated At">{new Date(selectedProduct.updatedAt).toLocaleString()}</Descriptions.Item>
