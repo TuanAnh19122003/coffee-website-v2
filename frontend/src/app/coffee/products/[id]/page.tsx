@@ -2,18 +2,21 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Layout, Typography, Row, Col, Image, Spin, Button, message } from "antd";
+import { Layout, Typography, Row, Col, Image, Spin, Button, message, Card } from "antd";
 import { ArrowLeftOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
 import { Product } from "@/app/admin/interfaces/Product";
 import { Product_size } from "@/app/admin/interfaces/Product_size";
+import Link from "next/link";
 
 const { Title, Text } = Typography;
+const { Meta } = Card;
 
 const ProductDetailPage = () => {
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedSize, setSelectedSize] = useState<Product_size | null>(null);
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const router = useRouter();
     const { id } = useParams();
 
@@ -28,6 +31,7 @@ const ProductDetailPage = () => {
                         if (response.data.sizes.length > 0) {
                             setSelectedSize(response.data.sizes[0]);
                         }
+                        fetchRelatedProducts(response.data.category.id); // Gọi API lấy sản phẩm liên quan
                     } else {
                         message.error("Không tìm thấy sản phẩm");
                     }
@@ -40,6 +44,18 @@ const ProductDetailPage = () => {
             fetchProductDetail();
         }
     }, [id]);
+
+    // Hàm lấy danh sách sản phẩm liên quan
+    const fetchRelatedProducts = async (categoryId: number) => {
+        try {
+            const response = await axios.get<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+                params: { categoryId },
+            });
+            setRelatedProducts(response.data.filter((p) => p.id !== Number(id))); // Loại bỏ sản phẩm đang xem
+        } catch (error) {
+            console.error("Lỗi khi lấy sản phẩm liên quan", error);
+        }
+    };
 
     if (loading) {
         return <Spin size="large" style={{ display: "block", margin: "auto", marginTop: "100px" }} />;
@@ -55,7 +71,7 @@ const ProductDetailPage = () => {
                 <Col xs={24} md={10} style={{ textAlign: "center" }}>
                     <Button
                         type="link"
-                        icon={<ArrowLeftOutlined />}
+                        icon={<ArrowLeftOutlined /> }
                         onClick={() => router.back()}
                         style={{ marginBottom: "20px", textAlign: "left", display: "block" }}
                     >
@@ -106,22 +122,61 @@ const ProductDetailPage = () => {
                         ))}
                     </div>
 
-                    <Button
-                        type="primary"
-                        icon={<ShoppingCartOutlined />}
-                        style={{ marginTop: "20px", width: "100%" }}
-                        onClick={() => {
-                            if (!selectedSize) {
-                                message.warning("Vui lòng chọn size trước khi thêm vào giỏ hàng!");
-                                return;
-                            }
-                            console.log(`Thêm vào giỏ hàng: ${product.name} - Size: ${selectedSize.size} - Giá: ${selectedSize.discounted_price || selectedSize.price}`);
-                        }}
-                    >
+                    <Button type="primary" icon={<ShoppingCartOutlined />} style={{ marginTop: "20px" }}>
                         Thêm vào giỏ hàng
                     </Button>
                 </Col>
             </Row>
+
+            {/* Sản phẩm liên quan */}
+            {relatedProducts.length > 0 && (
+                <div style={{ marginTop: "40px" }}>
+                    <Title level={3}>Sản phẩm liên quan</Title>
+                    <div style={{
+                        display: "flex",
+                        overflowX: "auto",
+                        whiteSpace: "nowrap",
+                        gap: "20px",
+                        paddingBottom: "10px"
+                    }}>
+                        {relatedProducts.map((relatedProduct) => (
+                            <div key={relatedProduct.id} style={{ flex: "0 0 auto", width: "200px" }}>
+                                <Card
+                                    hoverable
+                                    cover={
+                                        <div style={{
+                                            width: "100%",
+                                            height: "200px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            backgroundColor: "#f5f5f5"
+                                        }}>
+                                            <Image
+                                                src={relatedProduct.image ? `${process.env.NEXT_PUBLIC_API_URL}${relatedProduct.image}` : "/images/placeholder.png"}
+                                                alt={relatedProduct.name}
+                                                width={180}
+                                                height={180}
+                                                style={{
+                                                    objectFit: "cover",
+                                                    borderRadius: "10px",
+                                                    aspectRatio: "1 / 1"
+                                                }}
+                                            />
+                                        </div>
+                                    }
+                                >
+                                    <Meta title={relatedProduct.name} />
+                                    <br />
+                                    <Link href={`/coffee/products/${relatedProduct.id}`} passHref>
+                                        <Button type="link" style={{ padding: 0 }}>Xem chi tiết</Button>
+                                    </Link>
+                                </Card>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </Layout>
     );
 };

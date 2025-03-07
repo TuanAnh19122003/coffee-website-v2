@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,25 @@ function LoginPage() {
     const router = useRouter();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+
+    // Kiểm tra xem người dùng đã đăng nhập chưa
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { withCredentials: true });
+                if (res.status === 200 && res.data.user) {
+                    if (res.data.user.role.includes("Admin")) {
+                        router.replace("/admin");
+                    } else {
+                        router.replace("/coffee");
+                    }
+                }
+            } catch (error) {
+                console.log("Người dùng chưa đăng nhập");
+            }
+        };
+        checkAuth();
+    }, [router]);
 
     const handleSubmit = async (values: { email: string; password: string }) => {
         setLoading(true);
@@ -26,7 +45,7 @@ function LoginPage() {
                     if (user.role.includes("Admin")) {
                         router.replace("/admin");
                     } else {
-                        window.location.href = "/coffee";
+                        router.replace("/coffee");
                     }
                 }, 1000);
             }

@@ -21,6 +21,9 @@ export class AuthController {
             if (!(req as any).session) {
                 throw new InternalServerErrorException('Session chưa được khởi tạo');
             }
+            if ((req as any).session.user) {
+                return res.status(400).json({ message: 'Bạn đã đăng nhập rồi!' });
+            }
             const user = await this.authService.validateUser(loginDto.email, loginDto.password);
             if (!user) throw new UnauthorizedException('Mật khẩu không đúng');
             (req as any).session.user = {
@@ -39,14 +42,6 @@ export class AuthController {
         } catch (error) {
             return res.status(401).json({ message: 'Sai email hoặc mật khẩu!' });
         }
-    }
-
-    @Get()
-    async getAuthSession(
-        @Session() session: Record<string, string>
-    ) {
-        console.log(session);
-        console.log(session.id);
     }
 
     @Post('register')
@@ -80,9 +75,16 @@ export class AuthController {
         if (!(req as any).session || !(req as any).session.user) {
             throw new UnauthorizedException('Chưa đăng nhập');
         }
+        console.log("Session user:", (req as any).session.user);
 
-        return { user: (req as any).session.user };
+        return { ...((req as any).session.user) };
     }
+    @Get('/session')
+    async getAuthSession(@Session() session: Record<string, any>) {
+        console.log('Session hiện tại:', session);
+        return { user: session.user || null };
+    }
+
     @Post('/me')
     @UseInterceptors(FileInterceptor('image', multerConfig))  // Sử dụng cấu hình multer đã tạo
     async updateProfile(

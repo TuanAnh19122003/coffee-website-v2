@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
@@ -15,10 +15,17 @@ import { OrderItemsModule } from './modules/order_items/order_items.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { AuthModule } from './modules/users/auth/auth.module';
 import { SpecialsModule } from './modules/specials/specials.module';
+import { AuthMiddleware } from './middlewares/auth.middleware';
 
 @Module({
   imports: [UsersModule, AuthModule, RolesModule, UserrolesModule, CategoriesModule, ProductsModule, ProductSizesModule, ProductSpecialsModule, CartModule, CartItemsModule, OrdersModule, OrderItemsModule, ContactsModule, SpecialsModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes('/admin'); // Áp dụng cho tất cả route bắt đầu bằng /admin
+  }
+}

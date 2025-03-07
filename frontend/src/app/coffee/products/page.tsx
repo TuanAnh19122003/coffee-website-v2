@@ -53,6 +53,7 @@ const ProductsPage = () => {
         };
         fetchProducts();
     }, [selectedCategory]);
+    
 
     return (
         <Layout>
@@ -97,6 +98,16 @@ const ProductsPage = () => {
                                                         style={{ objectFit: "cover" }}
                                                     />
                                                 }
+                                                actions={[
+                                                    <Button type="link" onClick={() => (alert(`Đã thêm sản phẩm ${product.name}`))}>
+                                                        <ShoppingCartOutlined style={{ fontSize: "20px" }} />
+                                                    </Button>,
+                                                    <Link href={`/coffee/products/${product.id}`}>
+                                                        <Button type="link">
+                                                            <EyeOutlined style={{ fontSize: "20px" }} />
+                                                        </Button>
+                                                    </Link>,
+                                                ]}
                                             >
                                                 <Meta title={name} style={{ fontSize: "16px", fontWeight: "bold" }} />
                                                 <Text type="secondary" style={{ fontSize: "14px" }}>
@@ -118,30 +129,6 @@ const ProductsPage = () => {
                                                     </Text>
                                                 )}
 
-                                                {/* Sử dụng Row và Col để chia nút đều */}
-                                                <Row gutter={8} style={{ marginTop: "10px" }}>
-                                                    <Col span={12}>
-                                                        <Link href={`/coffee/products/${product.id}`} passHref>
-                                                            <Button 
-                                                                type="primary" 
-                                                                icon={<EyeOutlined />}  // Thêm icon "Xem chi tiết"
-                                                                style={{ width: "100%" }}
-                                                            >
-                                                                View Detail
-                                                            </Button>
-                                                        </Link>
-                                                    </Col>
-                                                    <Col span={12}>
-                                                        <Button 
-                                                            type="default" 
-                                                            icon={<ShoppingCartOutlined />}  // Thêm icon "Thêm vào giỏ hàng"
-                                                            style={{ width: "100%" }}
-                                                            onClick={() => console.log('Thêm vào giỏ hàng')}
-                                                        >
-                                                            Add to cart
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
                                             </Card>
                                         </Col>
                                     );
