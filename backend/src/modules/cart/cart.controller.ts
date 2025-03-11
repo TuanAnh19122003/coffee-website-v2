@@ -1,34 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
 
 @Controller('cart')
 export class CartController {
-  constructor(private readonly cartService: CartService) {}
+  constructor(private readonly cartService: CartService) { }
 
-  @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartService.create(createCartDto);
+  @Post('add')
+  async addToCart(@Req() req, @Body() body) {
+    console.log("🔍 Session trong controller:", req.session);
+
+    if (!req.session || !req.session.user) {
+      return { message: 'Bạn chưa đăng nhập', statusCode: 403 };
+    }
+
+    const userId = req.session.user.id; // Lấy userId từ session
+    const { productId, sizeId, quantity } = body;
+
+    return this.cartService.addToCart(userId, productId, sizeId, quantity);
   }
 
-  @Get()
-  findAll() {
-    return this.cartService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartService.findOne(+id);
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartService.update(+id, updateCartDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartService.remove(+id);
-  }
 }

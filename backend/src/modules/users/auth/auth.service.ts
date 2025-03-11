@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException, BadRequestException, forwardRef, Inj
 import { UsersService } from '../users.service';
 import { UserrolesService } from 'src/modules/userroles/userroles.service';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { CreateUserroleDto } from 'src/modules/userroles/dto/create-userrole.dto';
 import { BcryptHelper } from 'src/utils/bcrypt.helper';
 
 

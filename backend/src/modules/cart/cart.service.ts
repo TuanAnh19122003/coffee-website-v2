@@ -1,74 +1,86 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
 import { Cart } from 'src/database/entities/cart.entity';
-import { UsersService } from '../users/users.service';
+import { CartItem } from 'src/database/entities/cart_item.entity';
+import { ProductSize } from 'src/database/entities/product_size.entity';
 
 @Injectable()
 export class CartService {
   constructor(
     @Inject('CART_REPOSITORY')
-    private cartRepository: Repository<Cart>,
-    private usersService: UsersService,
+    private readonly cartRepository: Repository<Cart>,
+    @Inject('CART_ITEM_REPOSITORY')
+    private readonly cartItemRepository: Repository<CartItem>,
+    @Inject('PRODUCT_SIZE_REPOSITORY')
+    private readonly productSizeRepository: Repository<ProductSize>,
   ) { }
 
-  async findAll() {
-    const cart = await this.cartRepository.find({
-      relations: ['user']
-    })
-    return cart;
-  }
-  async create(createCartDto: CreateCartDto): Promise<Cart> {
-    const user = await this.usersService.findOne(createCartDto.userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const cart = this.cartRepository.create({ user });
-    return this.cartRepository.save(cart);
-  }
+  async addToCart(userId: number, productId: number, sizeId: number, quantity: number) {
+    let cart = await this.cartRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['cartItems'],
+    });
 
+    // Nếu giỏ hàng chưa tồn tại, tạo mới giỏ hàng
+    if (!cart) {
+      cart = this.cartRepository.create({ user: { id: userId } });
+      await this.cartRepository.save(cart);
+    }
+
+    // Lấy thông tin sản phẩm theo size đã chọn
+    const productSize = await this.productSizeRepository.findOne({
+      where: { id: sizeId },
+      relations: ['product', 'product.specials', 'product.specials.special'],
+    });
+
+    if (!productSize) {
+      throw new Error(`Size không hợp lệ cho sản phẩm ID: ${productId}`);
+    }
+
+    let price = productSize.price;
+    const now = new Date();
+
+    // Áp dụng giảm giá nếu có
+    const activeSpecial = productSize.product.specials.find(ps =>
+      ps.special.start_date <= now && ps.special.end_date >= now
+    );
+
+    if (activeSpecial) {
+      price -= price * (activeSpecial.special.discount_percentage / 100);
+    }
+
+    // Kiểm tra nếu sản phẩm đã có trong giỏ hàng
+    const existingCartItem = cart.cartItems?.find(
+      (item) => item?.product?.id === productId && item?.size?.id === sizeId
+    );
+
+    if (existingCartItem) {
+      // Nếu sản phẩm đã có trong giỏ, chỉ cần tăng số lượng lên
+      existingCartItem.quantity += quantity;
+      await this.cartItemRepository.save(existingCartItem);
+      return existingCartItem;
+    }
+
+    // Nếu sản phẩm chưa có trong giỏ, tạo mới item trong giỏ
+    const cartItem = this.cartItemRepository.create({
+      cart,
+      product: productSize.product,
+      size: productSize,
+      quantity,
+      price,
+    });
+
+    return this.cartItemRepository.save(cartItem);
+  }
 
   async findOne(id: number): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['cartItems', 'cartItems.product', 'cartItems.size'],
     });
     if (!cart) {
-      throw new Error('Cart not found');
+      throw new Error('Giỏ hàng không tồn tại');
     }
     return cart;
   }
-
-  async update(id: number, updateCartDto: UpdateCartDto): Promise<Cart> {
-    const cart = await this.findOne(id);
-    if (!cart) {
-      throw new Error('Cart not found');
-    }
-
-    // Kiểm tra nếu có userId mới, tìm User trước khi cập nhật
-    if (updateCartDto.userId) {
-      const user = await this.usersService.findOne(updateCartDto.userId);
-      if (!user) {
-        throw new Error(`User with ID ${updateCartDto.userId} not found`);
-      }
-      cart.user = user;
-    }
-
-    // Cập nhật các giá trị khác (nếu có)
-    Object.assign(cart, updateCartDto);
-
-    return this.cartRepository.save(cart);
-  }
-
-
-  async remove(id: number): Promise<string> {
-    const cart = await this.findOne(id);
-    if (!cart) {
-      throw new Error('Cart not found');
-    }
-    await this.cartRepository.remove(cart);
-    return `Cart #${id} has been removed successfully`;
-  }
-
 }

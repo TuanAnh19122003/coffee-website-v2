@@ -44,7 +44,8 @@ export const AppHeader = () => {
     const handleLogout = async () => {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
-            message.success('Đăng xuất thành công');
+            sessionStorage.removeItem("user");
+            message.success("Bạn đã đăng xuất!");
             setUser(null);
             router.push('/coffee/auth/login');
         } catch (error) {

@@ -39,6 +39,7 @@ function LoginPage() {
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, values, { withCredentials: true });
             if (response.status >= 200 && response.status < 300) {
+                sessionStorage.setItem("user", JSON.stringify(response.data.user));
                 const user = response.data.user;
                 message.success({ content: "Đăng nhập thành công!", key: "login" });
                 setTimeout(() => {
@@ -46,6 +47,9 @@ function LoginPage() {
                         router.replace("/admin");
                     } else {
                         router.replace("/coffee");
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
                     }
                 }, 1000);
             }

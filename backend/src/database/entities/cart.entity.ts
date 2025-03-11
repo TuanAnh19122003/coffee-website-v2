@@ -16,6 +16,6 @@ export class Cart {
     @Column({type: 'datetime', default: () => 'CURRENT_TIMESTAMP',onUpdate: 'CURRENT_TIMESTAMP',})
     updatedAt?: Date;
 
-    @OneToMany(() => CartItem, cartItem => cartItem.cart)
+    @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
     cartItems: CartItem[];
 }

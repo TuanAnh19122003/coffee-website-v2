@@ -18,8 +18,8 @@ function ProfilePage() {
     useEffect(() => {
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { withCredentials: true })
             .then(response => {
-                setUser(response.data.user);
-                console.log(response.data.user);
+                console.log('User data from backend:', response.data); // Log dữ liệu trả về từ BE
+                setUser(response.data);
                 setLoading(false);
             })
             .catch(error => {
@@ -27,18 +27,24 @@ function ProfilePage() {
                 setLoading(false);
             });
     }, []);
+    
 
     const handleEdit = () => {
+        console.log('User data:', user);  // Kiểm tra dữ liệu người dùng
         setEditing(true);
-        form.setFieldsValue({
-            firstName: user?.firstname,
-            lastName: user?.lastname,
-            email: user?.email,
-            phone: user?.phone,
-            address: user?.address,
-            password: '',
-        });
+        if (user) {
+            form.setFieldsValue({
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                password: '',
+            });
+        }
     };
+    
+    
 
     const handleImageChange = (file: RcFile) => {
         setNewImage(file);
@@ -136,10 +142,10 @@ function ProfilePage() {
                                     </div>
                                 ) : (
                                     <Form form={form} layout="vertical">
-                                        <Form.Item label="First Name" name="firstname" rules={[{ required: true, message: 'Please enter your first name' }]}>
+                                        <Form.Item label="First Name" name="firstname" rules={[{ message: 'Please enter your first name' }]}>
                                             <Input />
                                         </Form.Item>
-                                        <Form.Item label="Last Name" name="lastname" rules={[{ required: true, message: 'Please enter your last name' }]}>
+                                        <Form.Item label="Last Name" name="lastname" rules={[{ message: 'Please enter your last name' }]}>
                                             <Input />
                                         </Form.Item>
                                         <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
