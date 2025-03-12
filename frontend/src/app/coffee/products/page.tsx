@@ -40,6 +40,8 @@ const ProductsPage = () => {
                 const params = selectedCategory !== null ? { categoryId: selectedCategory } : {};
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/products`, { params });
 
+                console.log("Dữ liệu sản phẩm từ API:", response.data); // Kiểm tra dữ liệu nhận được
+
                 if (Array.isArray(response.data)) {
                     setProducts(response.data);
                 } else {
@@ -53,7 +55,47 @@ const ProductsPage = () => {
         };
         fetchProducts();
     }, [selectedCategory]);
-    
+
+    const handleAddToCart = async (product: any) => {
+        const user = sessionStorage.getItem("user");
+
+        if (!user) {
+            message.warning("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+            return;
+        }
+
+        if (!product || !product.sizes || product.sizes.length === 0) {
+            message.warning("Sản phẩm không có size khả dụng!");
+            return;
+        }
+
+        const selectedSize = product.sizes[0];
+        const price = selectedSize.discounted_price ?? selectedSize.price;
+
+        try {
+            // console.log("🛒 Gửi dữ liệu:", {
+            //     productId: product.id,
+            //     sizeId: selectedSize.id,
+            //     quantity: 1,
+            //     price: price,
+            // });
+
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/cart/add`,
+                {
+                    productId: Number(product.id),
+                    sizeId: Number(selectedSize.id),
+                    quantity: 1,
+                    price: price,
+                },
+                { withCredentials: true }
+            );
+
+            message.success("Đã thêm vào giỏ hàng!");
+        } catch (error: any) {
+            message.error(error.response?.data?.message || "Lỗi khi thêm sản phẩm vào giỏ hàng");
+        }
+    };
 
     return (
         <Layout>
@@ -81,7 +123,10 @@ const ProductsPage = () => {
                         <Row gutter={[16, 16]}>
                             {products.length > 0 ? (
                                 products.map((product) => {
-                                    const { id, name, description, image, original_price, discounted_price, size } = product as any;
+                                    const { id, name, description, image, original_price, discounted_price } = product as any;
+                                    const sizeS = product.sizes?.find((s: any) => s.size === "S");
+                                    const sizeText = sizeS ? `${sizeS.size}` : "Không có size S";
+
                                     const originalPrice = original_price ?? 0;
                                     const discountedPrice = discounted_price ?? originalPrice;
 
@@ -99,7 +144,7 @@ const ProductsPage = () => {
                                                     />
                                                 }
                                                 actions={[
-                                                    <Button type="link" onClick={() => (alert(`Đã thêm sản phẩm ${product.name}`))}>
+                                                    <Button type="link" onClick={() => handleAddToCart(product)}>
                                                         <ShoppingCartOutlined style={{ fontSize: "20px" }} />
                                                     </Button>,
                                                     <Link href={`/coffee/products/${product.id}`}>
@@ -111,8 +156,9 @@ const ProductsPage = () => {
                                             >
                                                 <Meta title={name} style={{ fontSize: "16px", fontWeight: "bold" }} />
                                                 <Text type="secondary" style={{ fontSize: "14px" }}>
-                                                    Size: {size || 'N/A'}
+                                                    Size: {sizeText}
                                                 </Text>
+
                                                 <br />
                                                 {originalPrice > 0 && discountedPrice < originalPrice ? (
                                                     <>
@@ -128,7 +174,6 @@ const ProductsPage = () => {
                                                         {Number(originalPrice).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
                                                     </Text>
                                                 )}
-
                                             </Card>
                                         </Col>
                                     );

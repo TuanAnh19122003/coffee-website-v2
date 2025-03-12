@@ -8,7 +8,7 @@ export class Product {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Category, category => category.products, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Category, (category) => category.products, { onDelete: 'CASCADE' })
     category: Category;
 
     @Column()
@@ -26,9 +26,9 @@ export class Product {
     @Column({type: 'datetime', default: () => 'CURRENT_TIMESTAMP',onUpdate: 'CURRENT_TIMESTAMP',})
     updatedAt?: Date;
 
-    @OneToMany(() => ProductSize, size => size.product, { cascade: true })
+    @OneToMany(() => ProductSize, (size) => size.product)
     sizes: ProductSize[];
-
-    @OneToMany(() => ProductSpecial, special => special.product)
+  
+    @OneToMany(() => ProductSpecial, (special) => special.product)
     specials: ProductSpecial[];
 }

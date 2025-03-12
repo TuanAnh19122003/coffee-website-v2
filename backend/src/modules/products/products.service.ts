@@ -27,13 +27,23 @@ export class ProductsService {
 
     const products = await this.productRepository.find({
       where: whereCondition,
-      relations: ['category', 'sizes', 'specials.special'],
+      relations: ['category', 'category.products', 'sizes', 'specials.special'],
     });
 
     console.log("Danh sách sản phẩm:", products);
 
     return products.map((product) => {
-      let defaultSize = product.sizes.find((size) => size.size === 'S') || product.sizes[0];
+      console.log("Product:", product.name, "Sizes:", product.sizes);
+
+      let defaultSize = product.sizes.find((size) => size.size === 'S');
+
+      if (!defaultSize) {
+        console.log(`Không tìm thấy size 'S' cho sản phẩm ${product.name}, chọn size đầu tiên.`);
+        defaultSize = product.sizes[0];
+      }
+
+      console.log("Default Size:", defaultSize);
+
       const originalPrice = defaultSize ? defaultSize.price : 0;
 
       const activeSpecial = product.specials?.find(
@@ -48,7 +58,15 @@ export class ProductsService {
         name: product.name,
         description: product.description,
         image: product.image,
-        size: defaultSize ? defaultSize.size : 'N/A',
+        sizes: product.sizes.map(size => ({
+          id: size.id,
+          size: size.size,
+          price: size.price,
+          discounted_price: discountPercentage > 0 ? size.price * (1 - discountPercentage / 100) : null
+        })),
+        default_size: defaultSize
+          ? { id: defaultSize.id, size: defaultSize.size }
+          : { id: null, size: 'N/A' },
         original_price: originalPrice,
         discounted_price: discountedPrice,
         special_name: activeSpecial?.special?.special_name || 'Không có khuyến mãi',
@@ -57,8 +75,6 @@ export class ProductsService {
       };
     });
   }
-
-
 
   async create(createProductDto: CreateProductDto, file?: Express.Multer.File): Promise<Product> {
 
@@ -104,6 +120,7 @@ export class ProductsService {
       image: product.image,
       category: product.category,
       sizes: product.sizes.map(size => ({
+        id: size.id,
         size: size.size,
         price: size.price,
         discounted_price: discountPercentage > 0 ? size.price * (1 - discountPercentage / 100) : null

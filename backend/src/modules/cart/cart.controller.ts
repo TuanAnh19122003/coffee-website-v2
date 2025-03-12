@@ -7,7 +7,7 @@ export class CartController {
 
   @Post('add')
   async addToCart(@Req() req, @Body() body) {
-    console.log("🔍 Session trong controller:", req.session);
+    console.log("🛒 Dữ liệu từ frontend:", body);
 
     if (!req.session || !req.session.user) {
       return { message: 'Bạn chưa đăng nhập', statusCode: 403 };

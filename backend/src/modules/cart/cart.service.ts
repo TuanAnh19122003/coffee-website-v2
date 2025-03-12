@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Cart } from 'src/database/entities/cart.entity';
 import { CartItem } from 'src/database/entities/cart_item.entity';
@@ -13,55 +13,70 @@ export class CartService {
     private readonly cartItemRepository: Repository<CartItem>,
     @Inject('PRODUCT_SIZE_REPOSITORY')
     private readonly productSizeRepository: Repository<ProductSize>,
-  ) { }
+  ) {}
 
   async addToCart(userId: number, productId: number, sizeId: number, quantity: number) {
+    console.log(`📩 Nhận request - UserID: ${userId}, ProductID: ${productId}, SizeID: ${sizeId}, Quantity: ${quantity}`);
+  
+    // Kiểm tra kiểu dữ liệu
+    if (typeof productId !== 'number' || typeof sizeId !== 'number') {
+      console.error('❌ Lỗi: productId hoặc sizeId không phải là số!', { productId, sizeId });
+      throw new Error('Dữ liệu productId hoặc sizeId không hợp lệ!');
+    }
+  
+    // Kiểm tra giỏ hàng của user
     let cart = await this.cartRepository.findOne({
       where: { user: { id: userId } },
-      relations: ['cartItems'],
+      relations: ['cartItems', 'cartItems.size', 'cartItems.product'],
     });
-
-    // Nếu giỏ hàng chưa tồn tại, tạo mới giỏ hàng
+  
     if (!cart) {
       cart = this.cartRepository.create({ user: { id: userId } });
       await this.cartRepository.save(cart);
+      console.log('🆕 Tạo giỏ hàng mới:', cart);
     }
-
-    // Lấy thông tin sản phẩm theo size đã chọn
+  
+    // Kiểm tra ProductSize trong DB
     const productSize = await this.productSizeRepository.findOne({
       where: { id: sizeId },
       relations: ['product', 'product.specials', 'product.specials.special'],
     });
-
+  
     if (!productSize) {
-      throw new Error(`Size không hợp lệ cho sản phẩm ID: ${productId}`);
+      console.error(`❌ Không tìm thấy Size ID: ${sizeId} cho Product ID: ${productId}`);
+      throw new NotFoundException(`Size không hợp lệ cho sản phẩm ID: ${productId}`);
     }
-
+  
+    console.log('✅ Product Size tìm thấy:', productSize);
+  
     let price = productSize.price;
     const now = new Date();
-
-    // Áp dụng giảm giá nếu có
     const activeSpecial = productSize.product.specials.find(ps =>
       ps.special.start_date <= now && ps.special.end_date >= now
     );
-
+  
     if (activeSpecial) {
       price -= price * (activeSpecial.special.discount_percentage / 100);
     }
-
-    // Kiểm tra nếu sản phẩm đã có trong giỏ hàng
-    const existingCartItem = cart.cartItems?.find(
-      (item) => item?.product?.id === productId && item?.size?.id === sizeId
-    );
-
+  
+    // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+    const existingCartItem = await this.cartItemRepository.findOne({
+      where: {
+        cart: { id: cart.id },
+        product: { id: productId },
+        size: { id: productSize.id }
+      }
+    });
+  
+    console.log('🔎 Kiểm tra sản phẩm đã có trong giỏ hàng:', existingCartItem);
+  
     if (existingCartItem) {
-      // Nếu sản phẩm đã có trong giỏ, chỉ cần tăng số lượng lên
       existingCartItem.quantity += quantity;
-      await this.cartItemRepository.save(existingCartItem);
-      return existingCartItem;
+      existingCartItem.price = price;
+      console.log('🔄 Cập nhật Cart Item:', existingCartItem);
+      return this.cartItemRepository.save(existingCartItem);
     }
-
-    // Nếu sản phẩm chưa có trong giỏ, tạo mới item trong giỏ
+  
     const cartItem = this.cartItemRepository.create({
       cart,
       product: productSize.product,
@@ -69,18 +84,22 @@ export class CartService {
       quantity,
       price,
     });
-
+  
+    console.log('🆕 Thêm mới Cart Item:', cartItem);
     return this.cartItemRepository.save(cartItem);
   }
-
+  
+  
   async findOne(id: number): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
       where: { id },
       relations: ['cartItems', 'cartItems.product', 'cartItems.size'],
     });
+
     if (!cart) {
-      throw new Error('Giỏ hàng không tồn tại');
+      throw new NotFoundException('Giỏ hàng không tồn tại');
     }
+    
     return cart;
   }
 }
