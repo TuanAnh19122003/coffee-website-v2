@@ -1,11 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import axios from "axios";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { Layout, Menu, Badge, MenuProps, message, Button, Avatar, Dropdown } from "antd";
+import { usePathname, useRouter } from "next/navigation";
+import { Layout, Menu, Button, Avatar, Dropdown, message } from "antd";
 import {
     HomeOutlined,
     InfoCircleOutlined,
@@ -20,7 +19,7 @@ import {
 import { User } from "@/app/admin/interfaces/User";
 
 export const AppHeader = () => {
-    const pathname = usePathname();
+    const pathname = usePathname() || "";  // Tránh lỗi khi pathname là undefined
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
 
@@ -53,16 +52,16 @@ export const AppHeader = () => {
         }
     };
 
-    const menuItems = [
+    const menuItems = useMemo(() => [
         { key: "/", label: "Home", icon: <HomeOutlined /> },
         { key: "/coffee/about", label: "About", icon: <InfoCircleOutlined /> },
         { key: "/coffee/products", label: "Products", icon: <AppstoreOutlined /> },
         { key: "/coffee/contact", label: "Contact", icon: <MessageOutlined /> },
-    ];
+    ], []);
 
     const isAdmin = user?.role?.includes("Admin");
 
-    const userMenuItems: MenuProps["items"] = [
+    const userMenuItems = useMemo(() => [
         {
             key: "profile",
             label: <Link href="/coffee/profile">Profile</Link>,
@@ -84,7 +83,7 @@ export const AppHeader = () => {
             icon: <LogoutOutlined />,
             onClick: handleLogout,
         },
-    ];
+    ], [isAdmin, handleLogout]);
 
     return (
         <Layout.Header className="flex justify-between items-center !bg-white shadow-lg px-6 border-b border-gray-200">
@@ -107,21 +106,22 @@ export const AppHeader = () => {
 
             {/* Login & Cart */}
             <div className="flex items-center space-x-4">
-                <Link href="#">
+                <Link href="/coffee/cart">
                     <Button type="text" icon={<ShoppingCartOutlined />} className="relative">
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
                             2
                         </span>
                     </Button>
                 </Link>
+
                 {user ? (
                     <div className="flex items-center space-x-6">
                         <span className="font-medium">{user.lastname} {user.firstname}</span>
                         <Dropdown menu={{ items: userMenuItems, style: { minWidth: "150px" } }} placement="bottomLeft">
                             <Avatar
-                                src={user.image?.startsWith("http") ? user.image : `${process.env.NEXT_PUBLIC_API_URL}${user.image}`}
+                                src={user.image ? (user.image.startsWith("http") ? user.image : `${process.env.NEXT_PUBLIC_API_URL}${user.image}`) : ""}
                                 size={40}
-                                icon={<UserOutlined />}
+                                icon={!user.image && <UserOutlined />}
                                 className="cursor-pointer"
                             />
                         </Dropdown>

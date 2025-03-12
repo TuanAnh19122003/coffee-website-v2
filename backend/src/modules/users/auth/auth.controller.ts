@@ -75,8 +75,6 @@ export class AuthController {
         if (!(req as any).session || !(req as any).session.user) {
             throw new UnauthorizedException('Chưa đăng nhập');
         }
-        console.log("Session user:", (req as any).session.user);
-
         return { ...((req as any).session.user) };
     }
     @Get('/session')
