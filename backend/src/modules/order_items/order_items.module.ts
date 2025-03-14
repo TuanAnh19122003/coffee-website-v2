@@ -14,6 +14,6 @@ import { orderItemProvider } from 'src/provider/order_item.provider';
     ...orderItemProvider,
     OrderItemsService
   ],
-  exports: [OrderItemsService]
+  exports: [OrderItemsService,...orderItemProvider]
 })
 export class OrderItemsModule {}

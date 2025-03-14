@@ -12,6 +12,6 @@ import { UsersModule } from '../users/users.module';
     ...orderProvider,
     OrdersService
   ],
-  exports: [OrdersService],
+  exports: [OrdersService, ...orderProvider]  ,
 })
 export class OrdersModule {}

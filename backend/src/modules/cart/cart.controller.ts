@@ -31,10 +31,6 @@ export class CartController {
   async updateQuantity(@Body() { userId, productId, sizeId, quantity }) {
     return this.cartService.updateQuantity(userId, productId, sizeId, quantity);
   }
-  @Put('update-size')
-  async updateSize(@Body() { userId, productId, oldSizeId, newSizeId }) {
-    return this.cartService.updateSize(userId, productId, oldSizeId, newSizeId);
-  }
 
   @Delete('remove')
   async removeFromCart(@Body() { userId, productId, sizeId }) {

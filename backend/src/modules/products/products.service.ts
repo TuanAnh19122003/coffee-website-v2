@@ -23,17 +23,17 @@ export class ProductsService {
 
   async findProductsByCategory(categoryId?: number) {
     const whereCondition = categoryId ? { category: { id: categoryId } } : {};
-    console.log("whereCondition:", whereCondition);
+    // console.log("whereCondition:", whereCondition);
 
     const products = await this.productRepository.find({
       where: whereCondition,
       relations: ['category', 'category.products', 'sizes', 'specials.special'],
     });
 
-    console.log("Danh sách sản phẩm:", products);
+    // console.log("Danh sách sản phẩm:", products);
 
     return products.map((product) => {
-      console.log("Product:", product.name, "Sizes:", product.sizes);
+      // console.log("Product:", product.name, "Sizes:", product.sizes);
 
       let defaultSize = product.sizes.find((size) => size.size === 'S');
 
@@ -42,7 +42,7 @@ export class ProductsService {
         defaultSize = product.sizes[0];
       }
 
-      console.log("Default Size:", defaultSize);
+      // console.log("Default Size:", defaultSize);
 
       const originalPrice = defaultSize ? defaultSize.price : 0;
 

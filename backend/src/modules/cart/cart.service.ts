@@ -3,6 +3,9 @@ import { Repository } from 'typeorm';
 import { Cart } from 'src/database/entities/cart.entity';
 import { CartItem } from 'src/database/entities/cart_item.entity';
 import { ProductSize } from 'src/database/entities/product_size.entity';
+import { Order } from 'src/database/entities/order.entity';
+import { OrderItem } from 'src/database/entities/order_item.entity';
+import { OrderStatus } from '../orders/order-status.enum';
 
 @Injectable()
 export class CartService {
@@ -13,14 +16,18 @@ export class CartService {
     private readonly cartItemRepository: Repository<CartItem>,
     @Inject('PRODUCT_SIZE_REPOSITORY')
     private readonly productSizeRepository: Repository<ProductSize>,
+    @Inject('ORDER_REPOSITORY')
+    private readonly orderRepository: Repository<Order>,
+    @Inject('ORDER_ITEM_REPOSITORY')
+    private readonly orderItemRepository: Repository<OrderItem>,
   ) { }
+  
 
   async addToCart(userId: number, productId: number, sizeId: number, quantity: number) {
     console.log(`📩 Nhận request - UserID: ${userId}, ProductID: ${productId}, SizeID: ${sizeId}, Quantity: ${quantity}`);
 
     // Kiểm tra kiểu dữ liệu
     if (typeof productId !== 'number' || typeof sizeId !== 'number') {
-      console.error('❌ Lỗi: productId hoặc sizeId không phải là số!', { productId, sizeId });
       throw new Error('Dữ liệu productId hoặc sizeId không hợp lệ!');
     }
 
@@ -33,7 +40,7 @@ export class CartService {
     if (!cart) {
       cart = this.cartRepository.create({ user: { id: userId } });
       await this.cartRepository.save(cart);
-      console.log('🆕 Tạo giỏ hàng mới:', cart);
+      // console.log('🆕 Tạo giỏ hàng mới:', cart);
     }
 
     // Kiểm tra ProductSize trong DB
@@ -43,11 +50,10 @@ export class CartService {
     });
 
     if (!productSize) {
-      console.error(`❌ Không tìm thấy Size ID: ${sizeId} cho Product ID: ${productId}`);
       throw new NotFoundException(`Size không hợp lệ cho sản phẩm ID: ${productId}`);
     }
 
-    console.log('✅ Product Size tìm thấy:', productSize);
+    // console.log('Product Size tìm thấy:', productSize);
 
     let price = productSize.price;
     const now = new Date();
@@ -68,7 +74,7 @@ export class CartService {
       }
     });
 
-    console.log('🔎 Kiểm tra sản phẩm đã có trong giỏ hàng:', existingCartItem);
+    // console.log('Kiểm tra sản phẩm đã có trong giỏ hàng:', existingCartItem);
 
     if (existingCartItem) {
       existingCartItem.quantity += quantity;
@@ -85,7 +91,7 @@ export class CartService {
       price,
     });
 
-    console.log('🆕 Thêm mới Cart Item:', cartItem);
+    // console.log('🆕 Thêm mới Cart Item:', cartItem);
     return this.cartItemRepository.save(cartItem);
   }
 
@@ -113,7 +119,7 @@ export class CartService {
       throw new NotFoundException('Giỏ hàng không tồn tại.');
     }
 
-    console.log("🛒 Giỏ hàng của user:", cart); // 🔍 Kiểm tra dữ liệu
+    console.log("Giỏ hàng của user:", cart);
     return cart.cartItems;
   }
 
@@ -131,34 +137,8 @@ export class CartService {
     cartItem.quantity = quantity;
     return this.cartItemRepository.save(cartItem);
   }
-  async updateSize(userId: number, productId: number, oldSizeId: number, newSizeId: number) {
-    const cart = await this.cartRepository.findOne({ where: { user: { id: userId } } });
-    if (!cart) throw new NotFoundException('Giỏ hàng không tồn tại.');
   
-    // Kiểm tra sản phẩm có trong giỏ hàng không
-    const cartItem = await this.cartItemRepository.findOne({
-      where: { cart: { id: cart.id }, product: { id: productId }, size: { id: oldSizeId } },
-    });
-  
-    if (!cartItem) throw new NotFoundException('Sản phẩm không tồn tại trong giỏ hàng.');
-  
-    // Kiểm tra kích thước mới có hợp lệ không
-    const newProductSize = await this.productSizeRepository.findOne({
-      where: { id: newSizeId, product: { id: productId } },
-      relations: ['product'],
-    });
-  
-    if (!newProductSize) throw new NotFoundException('Kích thước mới không hợp lệ.');
-  
-    // Cập nhật size cho sản phẩm
-    cartItem.size = newProductSize;
-    cartItem.price = newProductSize.price; // Cập nhật giá nếu có thay đổi theo kích thước
-  
-    return this.cartItemRepository.save(cartItem);
-  }
-  
-
-  // 📌 Xóa sản phẩm khỏi giỏ hàng
+  //Xóa sản phẩm khỏi giỏ hàng
   async removeFromCart(userId: number, productId: number, sizeId: number) {
     const cart = await this.cartRepository.findOne({ where: { user: { id: userId } } });
     if (!cart) throw new NotFoundException('Giỏ hàng không tồn tại.');
@@ -172,12 +152,45 @@ export class CartService {
     return { message: 'Sản phẩm đã được xóa khỏi giỏ hàng.' };
   }
 
-  // 📌 Thanh toán giỏ hàng
+  //Thanh toán giỏ hàng
   async checkout(userId: number) {
-    const cart = await this.cartRepository.findOne({ where: { user: { id: userId } }, relations: ['cartItems'] });
-    if (!cart) throw new NotFoundException('Giỏ hàng không tồn tại.');
-
-    await this.cartItemRepository.remove(cart.cartItems);
+    const cart = await this.cartRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['cartItems', 'cartItems.product', 'cartItems.size'],
+    });
+  
+    if (!cart || cart.cartItems.length === 0) {
+      throw new NotFoundException('Giỏ hàng không tồn tại hoặc rỗng.');
+    }
+  
+    let totalPrice = 0;
+    for (const item of cart.cartItems) {
+      totalPrice += item.quantity * item.price;
+    }
+  
+    const order = this.orderRepository.create({
+      user: { id: userId },
+      total_price: totalPrice,
+      status: OrderStatus.PENDING,
+    });
+    await this.orderRepository.save(order);
+  
+    // Lưu các mục đơn hàng
+    for (const item of cart.cartItems) {
+      const orderItem = this.orderItemRepository.create({
+        order,
+        product: item.product,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+      });
+      await this.orderItemRepository.save(orderItem);
+    }
+  
+    await this.cartItemRepository.remove(cart.cartItems);  
+    console.log('Đã xóa giỏ hàng.');
+  
     return { message: 'Thanh toán thành công!' };
   }
+  
 }
