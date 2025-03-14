@@ -65,7 +65,7 @@ export class OrdersService {
     const result = await this.orderRepository
       .createQueryBuilder('order')
       .select('SUM(order.total_price)', 'totalRevenue')
-      .where('order.status = :status', { status: 'Completed' }) // Chỉ tính đơn đã hoàn thành
+      .where('order.status = :status', { status: 'Completed' })
       .getRawOne();
 
     return parseFloat(result.totalRevenue) || 0;
@@ -91,7 +91,7 @@ export class OrdersService {
       .select("DATE_FORMAT(order.order_date, '%Y-%m') AS month")
       .addSelect("SUM(order.total_price) AS revenue")
       .where("YEAR(order.order_date) = YEAR(CURDATE())")
-      .andWhere("MONTH(order.order_date) = MONTH(CURDATE())") // Chỉ lấy tháng hiện tại
+      .andWhere("MONTH(order.order_date) = MONTH(CURDATE())")
       .groupBy("month")
       .getRawMany();
   }
@@ -104,7 +104,7 @@ export class OrdersService {
       .select("DAY(order.order_date) AS day")
       .addSelect("SUM(order.total_price) AS revenue")
       .where("MONTH(order.order_date) = :month", { month })
-      .andWhere("YEAR(order.order_date) = YEAR(CURDATE())") // Chỉ lấy dữ liệu năm hiện tại
+      .andWhere("YEAR(order.order_date) = YEAR(CURDATE())")
       .groupBy("day")
       .orderBy("day", "ASC")
       .getRawMany();

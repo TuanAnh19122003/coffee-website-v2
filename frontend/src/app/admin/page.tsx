@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import numeral from 'numeral';
 import { Card, Row, Col, Statistic, Select } from 'antd';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const { Option } = Select;
 
@@ -48,21 +48,18 @@ const AdminDashboard = () => {
     
         fetchStats();
     }, [selectedMonth]);
-    
 
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
 
             <Row gutter={[16, 16]}>
-                {/* Tổng đơn hàng */}
                 <Col xs={24} sm={12} md={6}>
                     <Card variant={'borderless'} style={{ background: '#E3F2FD' }}>
                         <Statistic title="Tổng đơn hàng" value={stats.totalOrders} />
                     </Card>
                 </Col>
 
-                {/* Tổng doanh thu */}
                 <Col xs={24} sm={12} md={6}>
                     <Card variant={'borderless'} style={{ background: '#C8E6C9' }}>
                         <Statistic
@@ -73,7 +70,6 @@ const AdminDashboard = () => {
                     </Card>
                 </Col>
 
-                {/* Doanh thu hôm nay */}
                 <Col xs={24} sm={12} md={6}>
                     <Card variant={'borderless'} style={{ background: '#FFF9C4' }}>
                         <Statistic
@@ -84,7 +80,6 @@ const AdminDashboard = () => {
                     </Card>
                 </Col>
 
-                {/* Doanh thu theo tháng */}
                 <Col xs={24} sm={12} md={6}>
                     <Card variant={'borderless'} style={{ background: '#E1BEE7', height: '100%' }}>
                         {stats.monthlyRevenue.length > 0 ? (
@@ -104,7 +99,6 @@ const AdminDashboard = () => {
                 </Col>
             </Row>
 
-            {/* Chọn tháng */}
             <Card className="mt-6 p-4">
                 <h2 className="text-lg font-bold mb-4">Chọn tháng</h2>
                 <Select value={selectedMonth} onChange={setSelectedMonth} style={{ width: 120 }}>
@@ -114,17 +108,16 @@ const AdminDashboard = () => {
                 </Select>
             </Card>
 
-            {/* Biểu đồ doanh thu theo ngày trong tháng */}
             <Card className="mt-6 p-4">
                 <h2 className="text-lg font-bold mb-4">Doanh thu theo ngày trong tháng</h2>
                 <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={stats.dailyRevenueMonth}>
+                    <LineChart data={stats.dailyRevenueMonth}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="day" />
                         <YAxis />
                         <Tooltip formatter={(value) => `${numeral(value).format('0,0')} ₫`} />
-                        <Bar dataKey="revenue" fill="#82ca9d" />
-                    </BarChart>
+                        <Line type="monotone" dataKey="revenue" stroke="#82ca9d" strokeWidth={2} />
+                    </LineChart>
                 </ResponsiveContainer>
             </Card>
         </div>
