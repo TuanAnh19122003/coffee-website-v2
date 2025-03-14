@@ -23,7 +23,7 @@ export const AppFooter = () => {
 
                     {/* Menu */}
                     <div className="flex flex-wrap gap-6">
-                        <Link href="/products" className="hover:text-blue-500">Products</Link>
+                        <Link href="/coffee/products" className="hover:text-blue-500">Products</Link>
                         <Link href="#" className="hover:text-blue-500">Privacy Policy</Link>
                         <Link href="#" className="hover:text-blue-500">Licensing</Link>
                         <Link href="#" className="hover:text-blue-500">Contact</Link>

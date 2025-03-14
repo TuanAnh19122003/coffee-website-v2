@@ -5,7 +5,8 @@ import axios from "axios";
 import { Layout, Menu, Card, Typography, Row, Col, message, Spin, Image, Button } from "antd";
 import { Category } from "@/app/admin/interfaces/Category";
 import { Product } from "@/app/admin/interfaces/Product";
-import { ShoppingCartOutlined, EyeOutlined } from "@ant-design/icons";  // Thêm icon
+import { ShoppingCartOutlined, EyeOutlined } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const { Sider, Content } = Layout;
@@ -13,6 +14,7 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 
 const ProductsPage = () => {
+    const router = useRouter();
     const [categories, setCategories] = useState<Category[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -61,6 +63,7 @@ const ProductsPage = () => {
 
         if (!user) {
             message.warning("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+            router.push("/coffee/auth/login");
             return;
         }
 
