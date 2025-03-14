@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import numeral from 'numeral';
-import { Card, Row, Col, Statistic } from 'antd';
+import { Card, Row, Col, Statistic, Select } from 'antd';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
+const { Option } = Select;
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -11,38 +14,41 @@ const AdminDashboard = () => {
         totalRevenue: 0,
         dailyRevenue: 0,
         monthlyRevenue: [] as { month: string; revenue: number }[],
+        dailyRevenueMonth: [] as { day: string; revenue: number }[],
     });
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
     useEffect(() => {
+        if (!selectedMonth) return;
+    
         const fetchStats = async () => {
             try {
-                const [totalOrdersRes, totalRevenueRes, dailyRevenueRes, monthlyRevenueRes] = await Promise.all([
+                const [totalOrdersRes, totalRevenueRes, dailyRevenueRes, monthlyRevenueRes, dailyRevenueMonthRes] = await Promise.all([
                     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/stats/total-orders`),
                     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/stats/total-revenue`),
                     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/stats/daily-revenue`),
                     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/stats/monthly-revenue`),
+                    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/stats/daily-revenue-month?month=${selectedMonth}`),
                 ]);
-
-                // console.log("📌 API Data:", {
-                //     totalOrders: totalOrdersRes.data,
-                //     totalRevenue: totalRevenueRes.data,
-                //     dailyRevenue: dailyRevenueRes.data,
-                //     monthlyRevenue: monthlyRevenueRes.data
-                // });
-
+    
                 setStats({
                     totalOrders: totalOrdersRes.data ?? 0,
                     totalRevenue: totalRevenueRes.data ?? 0,
                     dailyRevenue: dailyRevenueRes.data.revenue ?? 0,
-                    monthlyRevenue: Array.isArray(monthlyRevenueRes.data) ? monthlyRevenueRes.data : []
+                    monthlyRevenue: Array.isArray(monthlyRevenueRes.data) ? monthlyRevenueRes.data : [],
+                    dailyRevenueMonth: Array.isArray(dailyRevenueMonthRes.data) ? dailyRevenueMonthRes.data.map(item => ({
+                        day: `Ngày ${item.day}`,
+                        revenue: item.revenue
+                    })) : [],
                 });
             } catch (error) {
                 console.error("Lỗi khi tải dữ liệu:", error);
             }
         };
-
+    
         fetchStats();
-    }, []);
+    }, [selectedMonth]);
+    
 
     return (
         <div className="p-6">
@@ -96,8 +102,31 @@ const AdminDashboard = () => {
                         )}
                     </Card>
                 </Col>
-
             </Row>
+
+            {/* Chọn tháng */}
+            <Card className="mt-6 p-4">
+                <h2 className="text-lg font-bold mb-4">Chọn tháng</h2>
+                <Select value={selectedMonth} onChange={setSelectedMonth} style={{ width: 120 }}>
+                    {[...Array(12)].map((_, i) => (
+                        <Option key={i + 1} value={i + 1}>Tháng {i + 1}</Option>
+                    ))}
+                </Select>
+            </Card>
+
+            {/* Biểu đồ doanh thu theo ngày trong tháng */}
+            <Card className="mt-6 p-4">
+                <h2 className="text-lg font-bold mb-4">Doanh thu theo ngày trong tháng</h2>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={stats.dailyRevenueMonth}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <Tooltip formatter={(value) => `${numeral(value).format('0,0')} ₫`} />
+                        <Bar dataKey="revenue" fill="#82ca9d" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Card>
         </div>
     );
 };

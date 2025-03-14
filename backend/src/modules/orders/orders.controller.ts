@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Get()
   findAll() {
@@ -21,7 +21,7 @@ export class OrdersController {
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);
   }
-  
+
   @Put(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(+id, updateOrderDto);
@@ -50,9 +50,15 @@ export class OrdersController {
     return this.ordersService.getTodayRevenue();
   }
 
-  //API Lấy Doanh Thu Theo Tháng (Năm Hiện Tại)
   @Get('/stats/monthly-revenue')
   getMonthlyRevenue() {
     return this.ordersService.getMonthlyRevenue();
   }
+  // API lấy doanh thu từng ngày trong tháng hiện tại
+  @Get('/stats/daily-revenue-month')
+  async getDailyRevenueByMonth(@Query('month') month: number) {
+    return this.ordersService.getDailyRevenueInMonth(Number(month));
+  }
+
+
 }

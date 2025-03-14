@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from 'src/database/entities/order.entity';
 import { UsersService } from '../users/users.service';
+import { getDaysInMonth } from 'date-fns';
 
 @Injectable()
 export class OrdersService {
@@ -90,8 +91,28 @@ export class OrdersService {
       .select("DATE_FORMAT(order.order_date, '%Y-%m') AS month")
       .addSelect("SUM(order.total_price) AS revenue")
       .where("YEAR(order.order_date) = YEAR(CURDATE())")
+      .andWhere("MONTH(order.order_date) = MONTH(CURDATE())") // Chỉ lấy tháng hiện tại
       .groupBy("month")
-      .orderBy("month", "DESC")
       .getRawMany();
   }
+
+
+  // Thống kê doanh thu từng ngày trong tháng hiện tại
+  async getDailyRevenueInMonth(month: number): Promise<{ day: number; revenue: number }[]> {
+    const rawData = await this.orderRepository
+      .createQueryBuilder('order')
+      .select("DAY(order.order_date) AS day")
+      .addSelect("SUM(order.total_price) AS revenue")
+      .where("MONTH(order.order_date) = :month", { month })
+      .andWhere("YEAR(order.order_date) = YEAR(CURDATE())") // Chỉ lấy dữ liệu năm hiện tại
+      .groupBy("day")
+      .orderBy("day", "ASC")
+      .getRawMany();
+
+    return rawData.map((item) => ({
+      day: item.day,
+      revenue: parseFloat(item.revenue) || 0
+    }));
+  }
+
 }
