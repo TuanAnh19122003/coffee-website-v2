@@ -54,7 +54,7 @@ function Header() {
         {
             key: '2',
             icon: <UserOutlined />,
-            label: 'Thông tin cá nhân',
+            label: <a href="/admin/profile">Thông tin cá nhân</a>,
         },
         {
             key: '3',
