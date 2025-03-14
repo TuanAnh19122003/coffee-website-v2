@@ -30,11 +30,19 @@ const menuItems = [
     },
     {
         key: '3',
-        icon: <AppstoreAddOutlined />, // Biểu tượng AppstoreAdd có thể phù hợp hơn cho quản lý khuyến mãi
+        icon: <AppstoreAddOutlined />,
         label: 'Quản lý khuyến mãi',
         children: [
-            { key: '/admin/specials', icon: <GiftOutlined />, label: 'Khuyến mãi' }, // Gift là biểu tượng dành cho khuyến mãi
-            { key: '/admin/product-specials', icon: <TagsOutlined />, label: 'Sản phẩm đặc biệt' }, // Tags phù hợp cho sản phẩm đặc biệt
+            { key: '/admin/specials', icon: <GiftOutlined />, label: 'Khuyến mãi' },
+            { key: '/admin/product-specials', icon: <TagsOutlined />, label: 'Sản phẩm đặc biệt' },
+        ]
+    },
+    {
+        key: '4',
+        icon: <ReconciliationOutlined />,
+        label: 'Quản lý Đơn hàng',
+        children: [
+            { key: '/admin/orders', icon: <OrderedListOutlined />, label: 'Tất cả đơn hàng' },
         ]
     },    
     {

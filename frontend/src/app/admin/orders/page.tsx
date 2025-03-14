@@ -39,7 +39,7 @@ function OrderPage() {
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders`);
                 console.log(response.data);
-                setData(response.data); // ✅ orderItems sẽ có trong data
+                setData(response.data);
             } catch (error: any) {
                 setError(error.message);
             } finally {
@@ -73,6 +73,7 @@ function OrderPage() {
             title: 'Total Price',
             dataIndex: 'total_price',
             key: 'total_price',
+            render: (total_price) => total_price ? numeral(total_price).format('0,0') + ' ₫' : 'N/A',
         },
         {
             title: 'Status',

@@ -31,4 +31,28 @@ export class OrdersController {
   remove(@Param('id') id: string) {
     return this.ordersService.remove(+id);
   }
+
+  //API Lấy Tổng Số Đơn Hàng
+  @Get('/stats/total-orders')
+  getTotalOrders() {
+    return this.ordersService.getTotalOrders();
+  }
+
+  //Lấy Tổng Doanh Thu
+  @Get('/stats/total-revenue')
+  getTotalRevenue() {
+    return this.ordersService.getTotalRevenue();
+  }
+
+  //Lấy Doanh Thu Theo Ngày
+  @Get('/stats/daily-revenue')
+  getDailyRevenue() {
+    return this.ordersService.getTodayRevenue();
+  }
+
+  //API Lấy Doanh Thu Theo Tháng (Năm Hiện Tại)
+  @Get('/stats/monthly-revenue')
+  getMonthlyRevenue() {
+    return this.ordersService.getMonthlyRevenue();
+  }
 }

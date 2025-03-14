@@ -58,8 +58,8 @@ function Header() {
         },
         {
             key: '3',
-            icon: <UserOutlined />, // Đổi icon thành User
-            label: <a href="/coffee">UsePage</a>, // Chuyển hướng đến trang user
+            icon: <UserOutlined />,
+            label: <a href="/coffee">UsePage</a>,
         },        
         {
             key: '4',

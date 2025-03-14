@@ -79,7 +79,7 @@ export class CartService {
     if (existingCartItem) {
       existingCartItem.quantity += quantity;
       existingCartItem.price = price;
-      console.log('🔄 Cập nhật Cart Item:', existingCartItem);
+      // console.log('🔄 Cập nhật Cart Item:', existingCartItem);
       return this.cartItemRepository.save(existingCartItem);
     }
 
@@ -119,7 +119,7 @@ export class CartService {
       throw new NotFoundException('Giỏ hàng không tồn tại.');
     }
 
-    console.log("Giỏ hàng của user:", cart);
+    // console.log("Giỏ hàng của user:", cart);
     return cart.cartItems;
   }
 

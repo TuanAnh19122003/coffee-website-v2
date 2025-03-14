@@ -11,19 +11,19 @@ export class OrdersService {
     @Inject('ORDER_REPOSITORY')
     private orderRepository: Repository<Order>,
     private usersService: UsersService,
-  ) {}
-  
+  ) { }
+
   async findAll() {
     const order = await this.orderRepository.find({
-      relations: ['user','orderItems','orderItems.product']
+      relations: ['user', 'orderItems', 'orderItems.product']
     })
     return order;
   }
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.orderRepository.create(createOrderDto);
-    if(createOrderDto.userId){
+    if (createOrderDto.userId) {
       const user = await this.usersService.findOne(createOrderDto.userId);
-      if(!user){
+      if (!user) {
         throw new Error('User not found')
       }
       order.user = user;
@@ -31,12 +31,12 @@ export class OrdersService {
     return await this.orderRepository.save(order);
   }
 
-  async findOne(id: number):Promise<Order | null> {
+  async findOne(id: number): Promise<Order | null> {
     const order = this.orderRepository.findOne({
       where: { id },
-      relations: ['user','orderItems','orderItems.product']
+      relations: ['user', 'orderItems', 'orderItems.product']
     })
-    if(!order){
+    if (!order) {
       throw new Error('Order not found')
     }
     return order;
@@ -44,14 +44,54 @@ export class OrdersService {
 
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);
-    if(!order){
+    if (!order) {
       throw new Error('Order not found')
     }
     await this.orderRepository.update(id, updateOrderDto);
-    return {...order,...updateOrderDto};
+    return { ...order, ...updateOrderDto };
   }
 
-  async remove(id: number):Promise<void> {
+  async remove(id: number): Promise<void> {
     await this.orderRepository.delete(id);
+  }
+  // Thống kê tổng số đơn hàng
+  async getTotalOrders(): Promise<number> {
+    return await this.orderRepository.count();
+  }
+
+  // Thống kê tổng doanh thu
+  async getTotalRevenue(): Promise<number> {
+    const result = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.total_price)', 'totalRevenue')
+      .where('order.status = :status', { status: 'Completed' }) // Chỉ tính đơn đã hoàn thành
+      .getRawOne();
+
+    return parseFloat(result.totalRevenue) || 0;
+  }
+
+
+  // Thống kê doanh thu theo ngày
+  async getTodayRevenue(): Promise<{ revenue: number }> {
+    const result = await this.orderRepository
+      .createQueryBuilder('order')
+      .select("COALESCE(SUM(order.total_price), 0) AS revenue")
+      .where("DATE(order.order_date) = CURRENT_DATE")
+      .getRawOne();
+
+    return result ?? { revenue: 0 };
+  }
+
+
+  // Thống kê doanh thu theo tháng trong năm hiện tại
+  async getMonthlyRevenue(): Promise<{ month: string; revenue: number }[]> {
+    return await this.orderRepository
+      .createQueryBuilder('order')
+      .select("DATE_FORMAT(order.order_date, '%Y-%m') AS month")
+      .addSelect("SUM(order.total_price) AS revenue")
+      .where("YEAR(order.order_date) = YEAR(CURDATE())")
+      .groupBy("month")
+      .orderBy("month", "DESC")
+      .getRawMany();
   }
 }
