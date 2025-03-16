@@ -76,6 +76,11 @@ function OrderPage() {
             render: (total_price) => total_price ? numeral(total_price).format('0,0') + ' ₫' : 'N/A',
         },
         {
+            title: 'Shipping address',
+            dataIndex: 'shipping_address',
+            key: 'shipping_address',
+        },
+        {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',

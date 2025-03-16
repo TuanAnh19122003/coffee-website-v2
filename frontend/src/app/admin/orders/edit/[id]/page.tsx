@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 
 import { Order } from '@/app/admin/interfaces/Order';
 import { User } from '@/app/admin/interfaces/User';
+
 function EditOrderPage() {
     const params = useParams();
     const router = useRouter();
@@ -29,6 +30,7 @@ function EditOrderPage() {
                     ...response.data,
                     order_date: response.data.order_date ? dayjs(response.data.order_date) : null,
                     user: response.data.user?.id || null,
+                    shipping_address: response.data.shipping_address || "", // Lấy địa chỉ giao hàng
                 });
             } catch (error) {
                 message.error('Error fetching order');
@@ -52,8 +54,7 @@ function EditOrderPage() {
         } finally {
             setLoading(false);
         }
-    }
-
+    };
 
     if (!order) {
         return <div>Loading...</div>;
@@ -62,14 +63,14 @@ function EditOrderPage() {
     return (
         <div className='bg-white rounded-b-lg'>
             <div className='flex items-center justify-between border-b-2 pb-3 mb-4 '>
-                <h1 className='text-lg font-semibold text-gray-800'>Edit</h1>
+                <h1 className='text-lg font-semibold text-gray-800'>Chỉnh sửa đơn hàng</h1>
                 <Button type='default' icon={<ArrowLeftOutlined />} size='middle' onClick={() => router.push('/admin/orders')}>
-                    Back
+                    Quay lại
                 </Button>
             </div>
             <div>
                 <Form layout='vertical' onFinish={handleSubmit} initialValues={{ ...order, category: order.user }}>
-                    <Form.Item label='Total Price' name='total_price'>
+                    <Form.Item label='Tổng tiền' name='total_price'>
                         <Input
                             type='number'
                             value={order.total_price}
@@ -78,31 +79,31 @@ function EditOrderPage() {
                     </Form.Item>
 
                     <Form.Item
-                        label="Order Date"
+                        label="Ngày đặt hàng"
                         name="order_date"
                         rules={[{ required: true, message: 'Vui lòng chọn ngày đặt hàng' }]}
                     >
                         <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" className="w-full" />
                     </Form.Item>
 
-                    <Form.Item label="Status" name="status">
+                    <Form.Item label="Trạng thái" name="status">
                         <Select
                             value={order.status}
                             onChange={(value) => setOrder({ ...order, status: value })}
                         >
-                            <Select.Option value="pending">Pending</Select.Option>
-                            <Select.Option value="completed">Completed</Select.Option>
-                            <Select.Option value="cancelled">Cancelled</Select.Option>
+                            <Select.Option value="pending">Đang xử lý</Select.Option>
+                            <Select.Option value="completed">Hoàn thành</Select.Option>
+                            <Select.Option value="cancelled">Đã hủy</Select.Option>
                         </Select>
                     </Form.Item>
 
                     <Form.Item
                         name="user"
-                        label="User"
-                        rules={[{ required: true, message: 'Vui lòng chọn user!' }]}
+                        label="Người đặt hàng"
+                        rules={[{ required: true, message: 'Vui lòng chọn người dùng!' }]}
                     >
                         <Select
-                            placeholder="Chọn Category"
+                            placeholder="Chọn người dùng"
                             onChange={(value) => setOrder((prev) => ({ ...prev!, user: value }))}
                             value={order.user || undefined}
                         >
@@ -114,16 +115,28 @@ function EditOrderPage() {
                         </Select>
                     </Form.Item>
 
+                    <Form.Item
+                        label="Địa chỉ giao hàng"
+                        name="shipping_address"
+                        rules={[{ required: true, message: 'Vui lòng nhập địa chỉ giao hàng!' }]}
+                    >
+                        <Input.TextArea
+                            rows={3}
+                            placeholder="Nhập địa chỉ giao hàng..."
+                            value={order.shipping_address}
+                            onChange={(e) => setOrder((prev) => ({ ...prev!, shipping_address: e.target.value }))}
+                        />
+                    </Form.Item>
+
                     <Form.Item>
                         <Button type='primary' htmlType='submit' loading={loading}>
-                            Save Changes
+                            Lưu thay đổi
                         </Button>
                     </Form.Item>
                 </Form>
             </div>
-
         </div>
-    )
+    );
 }
 
-export default EditOrderPage
+export default EditOrderPage;
