@@ -24,7 +24,7 @@ export class CartService {
   
 
   async addToCart(userId: number, productId: number, sizeId: number, quantity: number) {
-    console.log(`📩 Nhận request - UserID: ${userId}, ProductID: ${productId}, SizeID: ${sizeId}, Quantity: ${quantity}`);
+    console.log(`Nhận request - UserID: ${userId}, ProductID: ${productId}, SizeID: ${sizeId}, Quantity: ${quantity}`);
 
     // Kiểm tra kiểu dữ liệu
     if (typeof productId !== 'number' || typeof sizeId !== 'number') {
@@ -40,7 +40,7 @@ export class CartService {
     if (!cart) {
       cart = this.cartRepository.create({ user: { id: userId } });
       await this.cartRepository.save(cart);
-      // console.log('🆕 Tạo giỏ hàng mới:', cart);
+      // console.log('Tạo giỏ hàng mới:', cart);
     }
 
     // Kiểm tra ProductSize trong DB
@@ -79,7 +79,7 @@ export class CartService {
     if (existingCartItem) {
       existingCartItem.quantity += quantity;
       existingCartItem.price = price;
-      // console.log('🔄 Cập nhật Cart Item:', existingCartItem);
+      // console.log('Cập nhật Cart Item:', existingCartItem);
       return this.cartItemRepository.save(existingCartItem);
     }
 
@@ -91,7 +91,7 @@ export class CartService {
       price,
     });
 
-    // console.log('🆕 Thêm mới Cart Item:', cartItem);
+    // console.log('Thêm mới Cart Item:', cartItem);
     return this.cartItemRepository.save(cartItem);
   }
 

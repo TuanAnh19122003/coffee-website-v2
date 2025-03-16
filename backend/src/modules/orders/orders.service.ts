@@ -66,7 +66,7 @@ export class OrdersService {
       .createQueryBuilder('order')
       .select('SUM(order.total_price)', 'totalRevenue')
       .where('order.status = :status', { status: 'Completed' })
-      .where('YEAR(order.order_date) = YEAR(CURDATE())')
+      .andWhere('YEAR(order.order_date) = YEAR(CURDATE())')
       .getRawOne();
 
     return parseFloat(result.totalRevenue) || 0;

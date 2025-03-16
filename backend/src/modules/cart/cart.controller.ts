@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, Get, Query, Delete, Put } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get, Query, Delete, Put } from '@nestjs/common';
 import { CartService } from './cart.service';
 
 @Controller('cart')
@@ -9,7 +9,7 @@ export class CartController {
   @Get()
   async getCartItems(@Query('userId') userId: number) {
     if (!userId) {
-      return { message: "Thiếu userId", items: [] }; // Trả về danh sách rỗng thay vì undefined
+      return { message: "Thiếu userId", items: [] };
     }
     return this.cartService.getCartItems(userId);
   }
