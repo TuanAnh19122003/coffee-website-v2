@@ -17,7 +17,7 @@ const CartPage: React.FC = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
-    const router = useRouter(); // Thêm useRouter để điều hướng
+    const router = useRouter();
 
     useEffect(() => {
         const storedUser = sessionStorage.getItem("user");
