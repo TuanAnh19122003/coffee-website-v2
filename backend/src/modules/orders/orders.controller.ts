@@ -17,6 +17,8 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
+
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);
@@ -58,6 +60,22 @@ export class OrdersController {
   @Get('/stats/daily-revenue-month')
   async getDailyRevenueByMonth(@Query('month') month: number) {
     return this.ordersService.getDailyRevenueInMonth(Number(month));
+  }
+
+  //Thanh toán paypal sandbox
+  @Get('/paypal-success')
+  async paypalSuccess(@Query('paymentId') paymentId: string, @Query('PayerID') payerId: string) {
+    return this.ordersService.executePayment(paymentId, payerId);
+  }
+
+  @Get('/paypal-cancel')
+  async paypalCancel() {
+    return { message: 'Payment canceled' };
+  }
+
+  @Post('/paypal')
+  async checkoutWithPaypal(@Body() createOrderDto: CreateOrderDto) {
+    return this.ordersService.createPayment(createOrderDto);
   }
 
 

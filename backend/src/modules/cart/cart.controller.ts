@@ -38,7 +38,7 @@ export class CartController {
   }
 
   @Post('checkout')
-  async checkout(@Body() { userId, shippingAddress }: { userId: number; shippingAddress: string }) {
-    return this.cartService.checkout(userId, shippingAddress);
+  async checkout(@Body() { userId, shipping_address }: { userId: number; shipping_address: string }) {
+    return this.cartService.checkout(userId, shipping_address);
   }
 }

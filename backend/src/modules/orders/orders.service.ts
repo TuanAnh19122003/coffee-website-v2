@@ -5,6 +5,10 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from 'src/database/entities/order.entity';
 import { UsersService } from '../users/users.service';
 import { getDaysInMonth } from 'date-fns';
+import * as paypal from 'paypal-rest-sdk';
+import { paypalConfig } from 'src/config/paypal.config';
+import { OrderStatus } from './order-status.enum';
+import { PaymentStatus } from 'src/database/entities/order.entity';
 
 @Injectable()
 export class OrdersService {
@@ -12,7 +16,9 @@ export class OrdersService {
     @Inject('ORDER_REPOSITORY')
     private orderRepository: Repository<Order>,
     private usersService: UsersService,
-  ) { }
+  ) {
+    paypal.configure(paypalConfig);
+  }
 
   async findAll() {
     const order = await this.orderRepository.find({
@@ -116,4 +122,81 @@ export class OrdersService {
     }));
   }
 
+  async createPayment(createOrderDto: CreateOrderDto): Promise<any> {
+    console.log("Received order data for PayPal:", createOrderDto);
+
+    if (!createOrderDto.total_price || createOrderDto.total_price <= 0) {
+      throw new Error('Invalid total price: Amount must be greater than zero');
+    }
+
+    // Tạo đơn hàng
+    const order = this.orderRepository.create(createOrderDto);
+
+    if (createOrderDto.userId) {
+      const user = await this.usersService.findOne(createOrderDto.userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      order.user = user;
+    }
+
+    // Lưu đơn hàng để có order.id
+    const savedOrder = await this.orderRepository.save(order);
+
+    const totalPrice = Number(savedOrder.total_price);
+    if (isNaN(totalPrice) || totalPrice <= 0) {
+      throw new Error('Invalid total price: Must be a valid number greater than zero');
+    }
+
+    const paymentData = {
+      intent: 'sale',
+      payer: { payment_method: 'paypal' },
+      redirect_urls: {
+        return_url: 'http://localhost:5000/orders/paypal-success',
+        cancel_url: 'http://localhost:5000/orders/paypal-cancel',
+      },
+      transactions: [
+        {
+          amount: {
+            total: totalPrice.toFixed(2),
+            currency: 'USD',
+          },
+          description: `Order #${savedOrder.id}`,  // Sử dụng savedOrder.id
+        },
+      ],
+    };
+
+    return new Promise((resolve, reject) => {
+      paypal.payment.create(paymentData, async (error, payment) => {
+        if (error) {
+          console.error("PayPal Error:", error);
+          reject(error);
+        } else {
+          console.log("Payment Created:", payment);
+          savedOrder.paymentId = payment.id;
+          await this.orderRepository.save(savedOrder);
+          const approvalUrl = payment.links.find(link => link.rel === 'approval_url')?.href;
+          resolve({ approvalUrl });
+        }
+      });
+    });
+  }
+
+
+  async executePayment(paymentId: string, payerId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      paypal.payment.execute(paymentId, { payer_id: payerId }, async (error, payment) => {
+        if (error) {
+          reject(error);
+        } else {
+          const order = await this.orderRepository.findOne({ where: { paymentId } });
+          if (order) {
+            order.status = OrderStatus.COMPLETED;
+            await this.orderRepository.save(order);
+          }
+          resolve(payment);
+        }
+      });
+    });
+  }
 }

@@ -153,7 +153,7 @@ export class CartService {
   }
 
   //Thanh toán giỏ hàng
-  async checkout(userId: number, shippingAddress: string) {
+  async checkout(userId: number, shipping_address: string) {
     const cart = await this.cartRepository.findOne({
       where: { user: { id: userId } },
       relations: ['cartItems', 'cartItems.product', 'cartItems.size'],
@@ -172,7 +172,7 @@ export class CartService {
       user: { id: userId },
       total_price: totalPrice,
       status: OrderStatus.PENDING,
-      shipping_address: shippingAddress,  // Lưu địa chỉ giao hàng
+      shipping_address: shipping_address,  // Lưu địa chỉ giao hàng
     });
   
     await this.orderRepository.save(order);

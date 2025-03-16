@@ -1,7 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
 import { User } from "./user.entity";
 import { OrderItem } from "./order_item.entity";
 import { OrderStatus } from "src/modules/orders/order-status.enum";
+
+export enum PaymentStatus {
+    PAID = 'paid',
+    UNPAID = 'unpaid',
+}
 
 @Entity("orders")
 export class Order {
@@ -14,6 +19,9 @@ export class Order {
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     order_date: Date;
 
+    @UpdateDateColumn()
+    orderUpdateDate: Date;
+
     @Column({ type: 'text' })
     shipping_address: string;
 
@@ -25,4 +33,16 @@ export class Order {
 
     @OneToMany(() => OrderItem, orderItem => orderItem.order, { eager: true })
     orderItems: OrderItem[];
+
+    @Column({ default: 'paypal' })
+    paymentMethod: string;
+
+    @Column({ type: "enum", enum: PaymentStatus, default: PaymentStatus.UNPAID })
+    paymentStatus: PaymentStatus;
+
+    @Column({ nullable: true })
+    paymentId: string;
+
+    @Column({ nullable: true })
+    payerId: string;
 }
