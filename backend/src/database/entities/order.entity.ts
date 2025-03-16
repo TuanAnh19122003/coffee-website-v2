@@ -14,6 +14,9 @@ export class Order {
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     order_date: Date;
 
+    @Column({ type: 'text' })
+    shipping_address: string;
+
     @Column("decimal", { precision: 10, scale: 2 })
     total_price: number;
 

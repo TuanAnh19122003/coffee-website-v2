@@ -12,6 +12,7 @@ export interface Order{
     order_date: Date;
     total_price: number;
     status: OrderStatus;
+    shipping_address: string;
     user: User;
     orderItems?: OrderItem[];
 }

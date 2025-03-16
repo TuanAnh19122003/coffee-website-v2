@@ -153,7 +153,7 @@ export class CartService {
   }
 
   //Thanh toán giỏ hàng
-  async checkout(userId: number) {
+  async checkout(userId: number, shippingAddress: string) {
     const cart = await this.cartRepository.findOne({
       where: { user: { id: userId } },
       relations: ['cartItems', 'cartItems.product', 'cartItems.size'],
@@ -172,7 +172,9 @@ export class CartService {
       user: { id: userId },
       total_price: totalPrice,
       status: OrderStatus.PENDING,
+      shipping_address: shippingAddress,  // Lưu địa chỉ giao hàng
     });
+  
     await this.orderRepository.save(order);
   
     // Lưu các mục đơn hàng
@@ -187,10 +189,11 @@ export class CartService {
       await this.orderItemRepository.save(orderItem);
     }
   
-    await this.cartItemRepository.remove(cart.cartItems);  
+    await this.cartItemRepository.remove(cart.cartItems);
     console.log('Đã xóa giỏ hàng.');
   
-    return { message: 'Thanh toán thành công!' };
+    return { message: 'Thanh toán thành công!', order };
   }
+  
   
 }
