@@ -74,21 +74,27 @@ const CheckOut: React.FC = () => {
 
     const handlePayPalSuccess = async (details: any) => {
         console.log("[PayPal Success] Payment details:", details);
-        console.log("[PayPal Success] Shipping Address:", shipping_address);
-
+    
         if (!total_price || Number(total_price) <= 0) {
             message.error("Tổng tiền không hợp lệ. Vui lòng kiểm tra giỏ hàng.");
             return;
         }
-
+    
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/orders/paypal`, {
                 userId,
                 shipping_address,
                 paymentId: details.id,
                 total_price: Number(total_price),
+                paymentStatus: details.status === "COMPLETED" ? "PAID" : "UNPAID",
+                orderItems: cartItems.map(item => ({
+                    productId: item.product.id,
+                    sizeId: item.size?.id || null,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
             });
-            
+    
             message.success("Thanh toán PayPal thành công!");
             router.push("/coffee");
         } catch (error) {
@@ -96,6 +102,7 @@ const CheckOut: React.FC = () => {
             message.error("Thanh toán PayPal thất bại");
         }
     };
+    
 
     const convertToUSD = (amountVND: number) => {
         const exchangeRate = 24000;
@@ -123,7 +130,7 @@ const CheckOut: React.FC = () => {
     ];
 
     return (
-        <PayPalScriptProvider options={{ clientId: "AaW6_B7NhCk0GTzeSYR0vArUcoToLwOJ9r0loSsVSqipMkuBLBjZZ3CerZqgSe2NJCZ1NZhKOn7LySm1" }}>
+        <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "" }}>
             <div>
                 <h2>Thanh toán</h2>
                 <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
@@ -151,13 +158,19 @@ const CheckOut: React.FC = () => {
                             ) : (
                                 <PayPalButtons
                                     createOrder={async (data, actions) => {
-                                        const priceUSD = convertToUSD(total_price);
-                                        console.log("💰 [Create PayPal Order] Total VND:", total_price, "Converted USD:", priceUSD);
+                                        const items = cartItems.map((item) => ({
+                                            name: item.product.name,
+                                            unit_amount: {
+                                                currency_code: "USD",
+                                                value: convertToUSD(item.price),
+                                            },
+                                            quantity: item.quantity.toString(),
+                                        }));
 
-                                        if (parseFloat(priceUSD) <= 0) {
-                                            message.error("Tổng tiền không hợp lệ. Vui lòng kiểm tra giỏ hàng.");
-                                            return Promise.reject(new Error("Tổng tiền không hợp lệ"));
-                                        }
+                                        const itemTotal = items.reduce(
+                                            (sum, item) => sum + parseFloat(item.unit_amount.value) * parseInt(item.quantity),
+                                            0
+                                        ).toFixed(2);
 
                                         return actions.order.create({
                                             intent: "CAPTURE",
@@ -165,13 +178,18 @@ const CheckOut: React.FC = () => {
                                                 {
                                                     amount: {
                                                         currency_code: "USD",
-                                                        value: priceUSD,
+                                                        value: itemTotal,
+                                                        breakdown: {
+                                                            item_total: { currency_code: "USD", value: itemTotal },
+                                                        },
                                                     },
-                                                    description: "Thanh toán đơn hàng cà phê",
+                                                    description: `Thanh toán đơn hàng ${userId}`,
+                                                    items: items,
                                                 },
                                             ],
                                         });
                                     }}
+
                                     onApprove={async (data, actions) => {
                                         console.log("[PayPal Approved] Order data:", data);
                                         if (!actions.order) return;
@@ -189,6 +207,8 @@ const CheckOut: React.FC = () => {
                                         message.error("Có lỗi xảy ra khi thanh toán PayPal.");
                                     }}
                                 />
+                                    
+
                             )}
                         </Card>
                     </div>
