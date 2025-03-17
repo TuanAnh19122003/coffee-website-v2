@@ -74,35 +74,43 @@ const CheckOut: React.FC = () => {
 
     const handlePayPalSuccess = async (details: any) => {
         console.log("[PayPal Success] Payment details:", details);
-    
+
         if (!total_price || Number(total_price) <= 0) {
             message.error("Tổng tiền không hợp lệ. Vui lòng kiểm tra giỏ hàng.");
             return;
         }
-    
+
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/orders/paypal`, {
                 userId,
                 shipping_address,
                 paymentId: details.id,
+                status: 'Completed',
                 total_price: Number(total_price),
                 paymentStatus: details.status === "COMPLETED" ? "PAID" : "UNPAID",
                 orderItems: cartItems.map(item => ({
-                    productId: item.product.id,
-                    sizeId: item.size?.id || null,
+                    product: item.product.id,
+                    size: item.size?.id || null,
                     quantity: item.quantity,
                     price: item.price,
                 })),
             });
-    
+
             message.success("Thanh toán PayPal thành công!");
-            router.push("/coffee");
+            router.push("/coffee/payment/success");
         } catch (error) {
             console.error("[PayPal Error] Lỗi khi lưu đơn hàng vào hệ thống:", error);
             message.error("Thanh toán PayPal thất bại");
+            router.push("/coffee/payment/cancel");
         }
     };
-    
+
+    const handlePayPalCancel = () => {
+        message.error("Thanh toán đã bị hủy.");
+        router.push("/coffee/payment/cancel"); // Điều hướng đến trang thanh toán hủy
+    };
+
+
 
     const convertToUSD = (amountVND: number) => {
         const exchangeRate = 24000;
@@ -202,13 +210,16 @@ const CheckOut: React.FC = () => {
                                             message.error("Lỗi khi xác nhận thanh toán PayPal.");
                                         }
                                     }}
+
                                     onError={(err) => {
                                         console.error("[PayPal Error]:", err);
                                         message.error("Có lỗi xảy ra khi thanh toán PayPal.");
                                     }}
-                                />
-                                    
 
+                                    onCancel={() => {
+                                        handlePayPalCancel();
+                                    }}
+                                />
                             )}
                         </Card>
                     </div>
