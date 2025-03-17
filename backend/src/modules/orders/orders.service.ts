@@ -4,18 +4,22 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from 'src/database/entities/order.entity';
 import { UsersService } from '../users/users.service';
-import { getDaysInMonth } from 'date-fns';
 import * as paypal from 'paypal-rest-sdk';
 import { paypalConfig } from 'src/config/paypal.config';
-import { OrderStatus } from './order-status.enum';
-import { PaymentStatus } from 'src/database/entities/order.entity';
+import { OrderItem } from 'src/database/entities/order_item.entity';
+import { ProductsService } from '../products/products.service';
+import { ProductSizesService } from '../product_sizes/product_sizes.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @Inject('ORDER_REPOSITORY')
     private orderRepository: Repository<Order>,
+    @Inject('ORDER_ITEM_REPOSITORY')
+    private readonly orderItemRepository: Repository<OrderItem>,
     private usersService: UsersService,
+    private productsService: ProductsService,
+    private productSizesService: ProductSizesService,
   ) {
     paypal.configure(paypalConfig);
   }
@@ -132,9 +136,8 @@ export class OrdersService {
     // Tạo đơn hàng
     const order = this.orderRepository.create({
       ...createOrderDto,
-      paymentMethod: 'paypal', // Gán phương thức thanh toán PayPal khi tạo đơn hàng
+      paymentMethod: 'paypal',
     });
-
 
     if (createOrderDto.userId) {
       const user = await this.usersService.findOne(createOrderDto.userId);
@@ -144,8 +147,25 @@ export class OrdersService {
       order.user = user;
     }
 
-    // Lưu đơn hàng để có order.id
     const savedOrder = await this.orderRepository.save(order);
+
+    // Lưu các mục orderItems và đảm bảo productId và sizeId được truyền vào
+    if (createOrderDto.orderItems && createOrderDto.orderItems.length > 0) {
+      order.orderItems = createOrderDto.orderItems.map((item) => {
+        // Không cần phải tìm lại sản phẩm và kích thước từ DB, trực tiếp lấy từ item
+        return {
+          ...item,
+          order: savedOrder,
+          productId: item.product, // Giữ nguyên productId từ frontend
+          sizeId: item.size, // Giữ nguyên sizeId từ frontend
+          price: item.price, // Giữ nguyên price từ frontend
+          quantity: item.quantity, // Giữ nguyên quantity từ frontend
+        };
+      });
+
+      // Lưu các orderItems vào cơ sở dữ liệu
+      await this.orderItemRepository.save(order.orderItems);
+    }
 
     const totalPrice = Number(savedOrder.total_price);
     if (isNaN(totalPrice) || totalPrice <= 0) {
@@ -165,7 +185,7 @@ export class OrdersService {
             total: totalPrice.toFixed(2),
             currency: 'USD',
           },
-          description: `Order #${savedOrder.id}`,  // Sử dụng savedOrder.id
+          description: `Order #${savedOrder.id}`,
         },
       ],
     };
@@ -176,7 +196,6 @@ export class OrdersService {
           console.error("PayPal Error:", error);
           reject(error);
         } else {
-          console.log("Payment Created:", payment);
           savedOrder.paymentId = payment.id;
           await this.orderRepository.save(savedOrder);
           const approvalUrl = payment.links.find(link => link.rel === 'approval_url')?.href;
@@ -186,21 +205,4 @@ export class OrdersService {
     });
   }
 
-
-  async executePayment(paymentId: string, payerId: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      paypal.payment.execute(paymentId, { payer_id: payerId }, async (error, payment) => {
-        if (error) {
-          reject(error);
-        } else {
-          const order = await this.orderRepository.findOne({ where: { paymentId } });
-          if (order) {
-            order.status = OrderStatus.COMPLETED;
-            await this.orderRepository.save(order);
-          }
-          resolve(payment);
-        }
-      });
-    });
-  }
 }
