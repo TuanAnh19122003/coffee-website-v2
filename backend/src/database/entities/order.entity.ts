@@ -34,7 +34,7 @@ export class Order {
     @OneToMany(() => OrderItem, orderItem => orderItem.order, { eager: true })
     orderItems: OrderItem[];
 
-    @Column({ default: 'paypal' })
+    @Column({ default: 'cod' })
     paymentMethod: string;
 
     @Column({ type: "enum", enum: PaymentStatus, default: PaymentStatus.UNPAID })

@@ -130,7 +130,11 @@ export class OrdersService {
     }
 
     // Tạo đơn hàng
-    const order = this.orderRepository.create(createOrderDto);
+    const order = this.orderRepository.create({
+      ...createOrderDto,
+      paymentMethod: 'paypal', // Gán phương thức thanh toán PayPal khi tạo đơn hàng
+    });
+
 
     if (createOrderDto.userId) {
       const user = await this.usersService.findOne(createOrderDto.userId);
