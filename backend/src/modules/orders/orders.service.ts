@@ -91,6 +91,7 @@ export class OrdersService {
       .createQueryBuilder('order')
       .select("COALESCE(SUM(order.total_price), 0) AS revenue")
       .where("DATE(order.order_date) = CURRENT_DATE")
+      .andWhere('order.status = :status', { status: 'Completed' })
       .getRawOne();
 
     return result ?? { revenue: 0 };
