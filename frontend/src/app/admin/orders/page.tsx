@@ -15,6 +15,7 @@ function OrderPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5)
     const [open, setOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -42,7 +43,7 @@ function OrderPage() {
         {
             title: 'STT',
             key: 'index',
-            render: (_, __, index) => (currentPage - 1) * 5 + index + 1,
+            render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
         },
         {
             title: 'Full Name',
@@ -115,8 +116,11 @@ function OrderPage() {
         });
     };
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = (page: number, pageSize?: number) => {
         setCurrentPage(page);
+        if (pageSize) {
+            setPageSize(pageSize);
+        }
     };
 
     const handleViewDetails = async (order: Order) => {
@@ -144,9 +148,14 @@ function OrderPage() {
                 dataSource={data}
                 rowKey='id'
                 pagination={{
-                    pageSize: 5,
+                    current: currentPage,
+                    pageSize: pageSize,
                     showSizeChanger: true,
                     pageSizeOptions: ['5', '10', '15'],
+                    onShowSizeChange: (current, size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                    },
                     position: ['bottomCenter'],
                     onChange: handlePageChange,
                 }}

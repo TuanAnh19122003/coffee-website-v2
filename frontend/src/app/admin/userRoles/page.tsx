@@ -14,6 +14,7 @@ const UserRolePage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5)
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedUserRole, setSelectedUserRole] = useState<UserRole | null>(null);
@@ -34,8 +35,11 @@ const UserRolePage = () => {
         fetchData();
     }, []);
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = (page: number, pageSize?: number) => {
         setCurrentPage(page);
+        if (pageSize) {
+            setPageSize(pageSize);
+        }
     };
 
     const handleDelete = async (userRoleId: number) => {
@@ -70,8 +74,8 @@ const UserRolePage = () => {
         {
             title: 'STT',
             key: 'index',
-            render: (_, __, index) => (currentPage - 1) * 5 + index + 1,
-        },
+            render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+        },  
         {
             title: 'User',
             dataIndex: 'user',
@@ -123,9 +127,14 @@ const UserRolePage = () => {
                 dataSource={data}
                 rowKey="id"
                 pagination={{
-                    pageSize: 5,
+                    current: currentPage,
+                    pageSize: pageSize,
                     showSizeChanger: true,
                     pageSizeOptions: ['5', '10', '15'],
+                    onShowSizeChange: (current, size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                    },
                     position: ['bottomCenter'],
                     onChange: handlePageChange,
                 }}

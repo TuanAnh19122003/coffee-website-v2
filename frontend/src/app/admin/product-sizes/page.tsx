@@ -15,8 +15,11 @@ function ProductSizePage() {
     const [data, setData] = useState<Product_size[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [productFilters, setProductFilters] = useState<{ text: string; value: string }[]>([]);
+    const [sizeFilters, setSizeFilters] = useState<{ text: string; value: string }[]>([]);
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
     const [open, setOpen] = useState(false);
     const [selectedProductSize, setSelectedProductSize] = useState<Product_size | null>(null);
 
@@ -35,6 +38,19 @@ function ProductSizePage() {
         }
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (data.length > 0) {
+            const uniqueProducts = Array.from(
+                new Set(data.map((item) => item.product?.name).filter(Boolean))
+            );
+            setProductFilters(uniqueProducts.map((name) => ({ text: name, value: name })));
+
+            const uniqueSizes = Array.from(new Set(data.map((item) => item.size).filter(Boolean)));
+            setSizeFilters(uniqueSizes.map((size) => ({ text: size, value: size })));
+        }
+    }, [data]);
+
 
     const handleDelete = async (productId: number) => {
         Modal.confirm({
@@ -59,26 +75,33 @@ function ProductSizePage() {
     };
 
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = (page: number, pageSize?: number) => {
         setCurrentPage(page);
+        if (pageSize) {
+            setPageSize(pageSize);
+        }
     };
 
     const columns: TableProps<Product_size>['columns'] = [
         {
             title: 'STT',
             key: 'index',
-            render: (_, __, index) => (currentPage - 1) * 5 + index + 1,
-        },
+            render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+        },        
         {
             title: 'Product',
             dataIndex: 'product',
             key: 'product',
+            filters: productFilters,
+            onFilter: (value, record) => record.product?.name === value,
             render: (product) => product?.name || 'N/A',
         },
         {
             title: 'Size',
             dataIndex: 'size',
             key: 'size',
+            filters: sizeFilters,
+            onFilter: (value, record) => record.size === value,
         },
         {
             title: 'Price',
@@ -126,9 +149,14 @@ function ProductSizePage() {
                     dataSource={data}
                     rowKey='id'
                     pagination={{
-                        pageSize: 5,
+                        current: currentPage,
+                        pageSize: pageSize,
                         showSizeChanger: true,
                         pageSizeOptions: ['5', '10', '15'],
+                        onShowSizeChange: (current, size) => {
+                            setPageSize(size);
+                            setCurrentPage(1);
+                        },
                         position: ['bottomCenter'],
                         onChange: handlePageChange,
                     }}
@@ -136,7 +164,7 @@ function ProductSizePage() {
             </div>
             <Modal
                 open={open}
-                title={<Title level={4}><ShoppingOutlined  /> Details of Product {selectedProductSize?.product.name || ''}</Title>}
+                title={<Title level={4}><ShoppingOutlined /> Details of Product {selectedProductSize?.product.name || ''}</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
@@ -157,7 +185,7 @@ function ProductSizePage() {
                             <Descriptions.Item label="Size">{selectedProductSize.size}</Descriptions.Item>
                             <Descriptions.Item label="Price">
                                 {
-                                    selectedProductSize.price? numeral(selectedProductSize.price).format('0,0') + ' ₫' : 'N/A'
+                                    selectedProductSize.price ? numeral(selectedProductSize.price).format('0,0') + ' ₫' : 'N/A'
                                 }
                             </Descriptions.Item>
                             <Descriptions.Item label="Product"> {selectedProductSize.product.name}</Descriptions.Item>
