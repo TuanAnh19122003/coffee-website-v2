@@ -101,12 +101,17 @@ function ProductsPage() {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            sorter: (a, b) => a.name.localeCompare(b.name),
+            sortDirections: ['ascend', 'descend'],
         },
+        
         {
             title: 'Category',
             dataIndex: 'category',
             key: 'category',
-            render: (category) => category && category.name ? category.name : 'N/A',
+            render: (category) => category?.name || 'N/A',
+            filters: categories.map((cat) => ({ text: cat.name, value: cat.id })),
+            onFilter: (value, record) => record.category?.id === value,
         },
         {
             title: 'Updated At',

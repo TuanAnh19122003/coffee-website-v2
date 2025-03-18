@@ -4,8 +4,8 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
-import { Order } from '../interfaces/Order';
+import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined } from '@ant-design/icons';
+import { Order, OrderStatus } from '../interfaces/Order';
 import numeral from 'numeral';
 
 const { Title, Text } = Typography;
@@ -31,24 +31,13 @@ function OrderPage() {
             }
         };
         fetchData();
-    }, [])
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders`);
-                console.log(response.data);
-                setData(response.data);
-            } catch (error: any) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
     }, []);
-    
+
+    const statusFilters = Object.values(OrderStatus).map(status => ({
+        text: status.charAt(0).toUpperCase() + status.slice(1),
+        value: status
+    }));  
+
     const columns: TableProps<Order>['columns'] = [
         {
             title: 'STT',
@@ -84,6 +73,11 @@ function OrderPage() {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            filters: statusFilters,
+            onFilter: (value, record) => record.status.toLowerCase() === value,
+            render: (status: OrderStatus) => (
+                <Text>{status.charAt(0).toUpperCase() + status.slice(1)}</Text>
+            )
         },
         {
             title: 'Action',
@@ -104,7 +98,7 @@ function OrderPage() {
                 </Space>
             ),
         },
-    ]
+    ];
 
     const handleDelete = async (orderId: number) => {
         Modal.confirm({
@@ -128,7 +122,6 @@ function OrderPage() {
     const handleViewDetails = async (order: Order) => {
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/${order.id}?populate=orderItems.product`);
-            console.log(response.data);
             setSelectedOrder(response.data);
             setOpen(true);
         } catch (error) {
@@ -157,6 +150,7 @@ function OrderPage() {
                     position: ['bottomCenter'],
                     onChange: handlePageChange,
                 }}
+                loading={loading}
             />
             <Modal
                 open={open}
@@ -184,11 +178,7 @@ function OrderPage() {
                                     pagination={false}
                                     columns={[
                                         { title: "Product", dataIndex: ["product", "name"], key: "product" },
-                                        { 
-                                            title: "Quantity", 
-                                            dataIndex: "quantity", 
-                                            key: "quantity"
-                                        },
+                                        { title: "Quantity", dataIndex: "quantity", key: "quantity" },
                                         { 
                                             title: "Price", 
                                             dataIndex: "price", 
@@ -201,15 +191,13 @@ function OrderPage() {
                                 <Text type="secondary">No items</Text>
                             )}
                         </Descriptions.Item>
-
                     </Card>
                 ) : (
                     <p>Không có dữ liệu</p>
                 )}
             </Modal>
-
         </div>
-    )
+    );
 }
 
-export default OrderPage
+export default OrderPage;

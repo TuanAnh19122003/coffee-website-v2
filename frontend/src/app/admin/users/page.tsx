@@ -80,15 +80,20 @@ const UserPage = () => {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-        },
+            filterSearch: true,
+            filters: data.map(user => ({
+                text: user.email,
+                value: user.email,
+            })),
+            onFilter: (value, record) => record.email.includes(value.toLocaleString()),
+        },        
         {
             title: 'Full Name',
-            dataIndex: 'lastname' + 'firstname',
             key: 'fullname',
-            render: (text, record) => (
-                <span>{record.lastname} {record.firstname}</span>
-            ),
-        },
+            render: (_, record) => `${record.lastname} ${record.firstname}`,
+            sorter: (a, b) => (`${a.lastname} ${a.firstname}`).localeCompare(`${b.lastname} ${b.firstname}`),
+            sortDirections: ['ascend', 'descend'],
+        },        
         {
             title: 'Phone',
             dataIndex: 'phone',
@@ -98,7 +103,12 @@ const UserPage = () => {
             title: 'Address',
             dataIndex: 'address',
             key: 'address',
-        },
+            filters: [...new Set(data.map(user => user.address))].map(address => ({
+                text: address,
+                value: address,
+            })),
+            onFilter: (value, record) => record.address === value,
+        },        
         {
             title: 'Action',
             key: 'action',
