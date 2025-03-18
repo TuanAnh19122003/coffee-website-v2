@@ -60,14 +60,13 @@ export const AppHeader = () => {
     }, [user]);
 
     useEffect(() => {
-        fetchCartCount(); // Gọi ngay khi user thay đổi
+        fetchCartCount();
 
-        const interval = setInterval(fetchCartCount, 5000); // Cập nhật mỗi 5 giây
+        const interval = setInterval(fetchCartCount, 5000);
 
         return () => clearInterval(interval);
     }, [fetchCartCount]);
 
-    // Lắng nghe sự kiện khi có sản phẩm mới thêm vào giỏ hàng
     useEffect(() => {
         const handleCartUpdate = () => {
             fetchCartCount();
