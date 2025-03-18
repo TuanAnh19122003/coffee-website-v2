@@ -5,11 +5,12 @@ import { DatabaseModule } from 'src/database/migrations/database.module';
 import { orderProvider } from 'src/provider/order.provider';
 import { UsersModule } from '../users/users.module';
 import { OrderItemsModule } from '../order_items/order_items.module';
-import { ProductSizesModule } from '../product_sizes/product_sizes.module';
-import { ProductsModule } from '../products/products.module';
+import { CartModule } from '../cart/cart.module';
+import { CartItemsModule } from '../cart_items/cart_items.module';
+
 
 @Module({
-  imports: [DatabaseModule, UsersModule, forwardRef(()=>OrderItemsModule), ProductSizesModule, ProductsModule],
+  imports: [DatabaseModule, UsersModule, forwardRef(()=>OrderItemsModule), forwardRef(()=>CartModule), forwardRef(()=>CartItemsModule)],
   controllers: [OrdersController],
   providers: [
     ...orderProvider,

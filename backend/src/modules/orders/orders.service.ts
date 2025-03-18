@@ -7,8 +7,8 @@ import { UsersService } from '../users/users.service';
 import * as paypal from 'paypal-rest-sdk';
 import { paypalConfig } from 'src/config/paypal.config';
 import { OrderItem } from 'src/database/entities/order_item.entity';
-import { ProductsService } from '../products/products.service';
-import { ProductSizesService } from '../product_sizes/product_sizes.service';
+import { CartItem } from 'src/database/entities/cart_item.entity';
+import { Cart } from 'src/database/entities/cart.entity';
 
 @Injectable()
 export class OrdersService {
@@ -17,9 +17,11 @@ export class OrdersService {
     private orderRepository: Repository<Order>,
     @Inject('ORDER_ITEM_REPOSITORY')
     private readonly orderItemRepository: Repository<OrderItem>,
+    @Inject('CART_REPOSITORY')
+    private readonly cartRepository: Repository<Cart>,
+    @Inject('CART_ITEM_REPOSITORY')
+    private readonly cartItemRepository: Repository<CartItem>,
     private usersService: UsersService,
-    private productsService: ProductsService,
-    private productSizesService: ProductSizesService,
   ) {
     paypal.configure(paypalConfig);
   }
@@ -127,7 +129,7 @@ export class OrdersService {
   }
 
   async createPayment(createOrderDto: CreateOrderDto): Promise<any> {
-    console.log("Received order data for PayPal:", createOrderDto);
+    // console.log("Received order data for PayPal:", createOrderDto);
 
     if (!createOrderDto.total_price || createOrderDto.total_price <= 0) {
       throw new Error('Invalid total price: Amount must be greater than zero');
@@ -149,21 +151,18 @@ export class OrdersService {
 
     const savedOrder = await this.orderRepository.save(order);
 
-    // Lưu các mục orderItems và đảm bảo productId và sizeId được truyền vào
     if (createOrderDto.orderItems && createOrderDto.orderItems.length > 0) {
       order.orderItems = createOrderDto.orderItems.map((item) => {
-        // Không cần phải tìm lại sản phẩm và kích thước từ DB, trực tiếp lấy từ item
         return {
           ...item,
           order: savedOrder,
-          productId: item.product, // Giữ nguyên productId từ frontend
-          sizeId: item.size, // Giữ nguyên sizeId từ frontend
-          price: item.price, // Giữ nguyên price từ frontend
-          quantity: item.quantity, // Giữ nguyên quantity từ frontend
+          productId: item.product,
+          sizeId: item.size,
+          price: item.price, 
+          quantity: item.quantity,
         };
       });
 
-      // Lưu các orderItems vào cơ sở dữ liệu
       await this.orderItemRepository.save(order.orderItems);
     }
 
@@ -197,7 +196,19 @@ export class OrdersService {
           reject(error);
         } else {
           savedOrder.paymentId = payment.id;
+          savedOrder.payerId = payment.payerId;
           await this.orderRepository.save(savedOrder);
+          if (createOrderDto.userId) {
+            const cart = await this.cartRepository.findOne({
+              where: { user: { id: createOrderDto.userId } },
+              relations: ['cartItems'],
+            });
+    
+            if (cart && cart.cartItems.length > 0) {
+              await this.cartItemRepository.remove(cart.cartItems);
+              console.log(`Đã xóa giỏ hàng cho userId ${createOrderDto.userId}`);
+            }
+          }
           const approvalUrl = payment.links.find(link => link.rel === 'approval_url')?.href;
           resolve({ approvalUrl });
         }

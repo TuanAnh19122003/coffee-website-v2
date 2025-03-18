@@ -52,7 +52,6 @@ export class ProductSizesService {
     // Cập nhật tất cả các trường khác
     Object.assign(productSize, updateProductSizeDto);
 
-    // Xử lý productId nếu có
     if (updateProductSizeDto.productId) {
       const product = await this.productsService.findOne(updateProductSizeDto.productId);
       if (!product) {

@@ -24,9 +24,8 @@ export class CartService {
   
 
   async addToCart(userId: number, productId: number, sizeId: number, quantity: number) {
-    console.log(`Nhận request - UserID: ${userId}, ProductID: ${productId}, SizeID: ${sizeId}, Quantity: ${quantity}`);
+    // console.log(`Nhận request - UserID: ${userId}, ProductID: ${productId}, SizeID: ${sizeId}, Quantity: ${quantity}`);
 
-    // Kiểm tra kiểu dữ liệu
     if (typeof productId !== 'number' || typeof sizeId !== 'number') {
       throw new Error('Dữ liệu productId hoặc sizeId không hợp lệ!');
     }
@@ -172,7 +171,7 @@ export class CartService {
       user: { id: userId },
       total_price: totalPrice,
       status: OrderStatus.PENDING,
-      shipping_address: shipping_address,  // Lưu địa chỉ giao hàng
+      shipping_address: shipping_address,
     });
   
     await this.orderRepository.save(order);
