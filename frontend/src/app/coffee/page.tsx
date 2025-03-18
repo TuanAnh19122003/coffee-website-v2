@@ -12,7 +12,6 @@ const HomePage = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Load sản phẩm khuyến mãi từ API
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -28,7 +27,6 @@ const HomePage = () => {
         fetchProducts();
     }, []);
 
-    // Hàm để chia sản phẩm thành từng nhóm 4 sản phẩm
     const chunkProducts = (products: any[], chunkSize: number) => {
         const chunks = [];
         for (let i = 0; i < products.length; i += chunkSize) {
@@ -41,7 +39,6 @@ const HomePage = () => {
 
     return (
         <Layout className="p-4">
-            {/* Quảng cáo hình ảnh chạy ngang */}
             <Content className="p-4">
                 <div className="hero-banner" style={{ textAlign: 'center', padding: '60px 0', background: '#f7f7f7' }}>
                     <Carousel autoplay autoplaySpeed={4000}>

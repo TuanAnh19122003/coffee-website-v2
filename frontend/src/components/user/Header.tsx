@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import axios from "axios";
 import Image from "next/image";
@@ -19,9 +19,10 @@ import {
 import { User } from "@/app/admin/interfaces/User";
 
 export const AppHeader = () => {
-    const pathname = usePathname() || "";  // Tránh lỗi khi pathname là undefined
+    const pathname = usePathname() || "";
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
+    const [cartCount, setCartCount] = useState(0);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -40,6 +41,45 @@ export const AppHeader = () => {
         fetchUser();
     }, []);
 
+    // Hàm lấy số lượng giỏ hàng
+    const fetchCartCount = useCallback(async () => {
+        if (!user) return;
+
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/cart/count`, {
+                params: { userId: user.id },
+                withCredentials: true,
+            });
+
+            if (response.data?.count !== undefined) {
+                setCartCount(response.data.count);
+            }
+        } catch (error) {
+            console.error("Error fetching cart count:", error);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchCartCount(); // Gọi ngay khi user thay đổi
+
+        const interval = setInterval(fetchCartCount, 5000); // Cập nhật mỗi 5 giây
+
+        return () => clearInterval(interval);
+    }, [fetchCartCount]);
+
+    // Lắng nghe sự kiện khi có sản phẩm mới thêm vào giỏ hàng
+    useEffect(() => {
+        const handleCartUpdate = () => {
+            fetchCartCount();
+        };
+
+        window.addEventListener("cart:update", handleCartUpdate);
+
+        return () => {
+            window.removeEventListener("cart:update", handleCartUpdate);
+        };
+    }, [fetchCartCount]);
+
     const handleLogout = async () => {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, { withCredentials: true });
@@ -53,7 +93,7 @@ export const AppHeader = () => {
     };
 
     const menuItems = useMemo(() => [
-        { key: "/", label: "Home", icon: <HomeOutlined /> },
+        { key: "/coffee", label: "Home", icon: <HomeOutlined /> },
         { key: "/coffee/about", label: "About", icon: <InfoCircleOutlined /> },
         { key: "/coffee/products", label: "Products", icon: <AppstoreOutlined /> },
         { key: "/coffee/contact", label: "Contact", icon: <MessageOutlined /> },
@@ -108,9 +148,11 @@ export const AppHeader = () => {
             <div className="flex items-center space-x-4">
                 <Link href="/coffee/cart">
                     <Button type="text" icon={<ShoppingCartOutlined />} className="relative">
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                            2
-                        </span>
+                        {user && cartCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                                {cartCount}
+                            </span>
+                        )}
                     </Button>
                 </Link>
 
