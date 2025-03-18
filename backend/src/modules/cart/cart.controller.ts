@@ -32,6 +32,16 @@ export class CartController {
     return this.cartService.updateQuantity(userId, productId, sizeId, quantity);
   }
 
+  @Get('count')
+  async getCartItemCount(@Query('userId') userId: number) {
+    if (!userId) {
+      return { message: "Thiếu userId", count: 0 };
+    }
+    const count = await this.cartService.getCartItemCount(userId);
+    return { count };
+  }
+
+
   @Delete('remove')
   async removeFromCart(@Body() { userId, productId, sizeId }) {
     return this.cartService.removeFromCart(userId, productId, sizeId);

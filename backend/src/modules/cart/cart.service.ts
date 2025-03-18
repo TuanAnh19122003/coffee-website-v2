@@ -136,6 +136,18 @@ export class CartService {
     cartItem.quantity = quantity;
     return this.cartItemRepository.save(cartItem);
   }
+
+  async getCartItemCount(userId: number): Promise<number> {
+    const cart = await this.cartRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['cartItems'],
+    });
+  
+    if (!cart) return 0;
+  
+    return cart.cartItems.reduce((total, item) => total + item.quantity, 0);
+  }
+  
   
   //Xóa sản phẩm khỏi giỏ hàng
   async removeFromCart(userId: number, productId: number, sizeId: number) {
