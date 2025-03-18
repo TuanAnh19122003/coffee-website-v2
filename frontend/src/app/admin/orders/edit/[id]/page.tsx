@@ -30,7 +30,7 @@ function EditOrderPage() {
                     ...response.data,
                     order_date: response.data.order_date ? dayjs(response.data.order_date) : null,
                     user: response.data.user?.id || null,
-                    shipping_address: response.data.shipping_address || "", // Lấy địa chỉ giao hàng
+                    shipping_address: response.data.shipping_address || "",
                 });
             } catch (error) {
                 message.error('Error fetching order');

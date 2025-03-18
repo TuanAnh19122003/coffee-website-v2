@@ -152,7 +152,7 @@ const UserPage = () => {
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
-                width={500} // Đặt chiều rộng cố định
+                width={500}
             >
                 {selectedUser ? (
                     <Card

@@ -23,7 +23,7 @@ const UserRolePage = () => {
             setLoading(true);
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/userroles`);
-                console.log('Dữ liệu API:', response.data); // Kiểm tra API trả về
+                console.log('Dữ liệu API:', response.data);
                 setData(response.data);
             } catch (error: any) {
                 setError(error.message);

@@ -109,7 +109,7 @@ function CategoryPage() {
                     onChange: handlePageChange,
                 }}
             />
-            {/* Modal hiển thị chi tiết Category */}
+
             <Modal
                 open={open}
                 title={<Title level={4}><IdcardOutlined /> Role Details</Title>}

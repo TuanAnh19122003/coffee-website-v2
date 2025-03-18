@@ -13,6 +13,6 @@ export interface Product {
     special_name?: string;
     start_date?: string;
     end_date?: string;
-    originalPrice?: number;   // Thêm giá gốc
-    discountedPrice?: number; // Thêm giá đã giảm
+    originalPrice?: number;   
+    discountedPrice?: number; 
 }

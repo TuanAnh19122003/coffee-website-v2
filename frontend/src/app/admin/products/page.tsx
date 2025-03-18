@@ -24,7 +24,7 @@ function ProductsPage() {
             setLoading(true);
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/products`);
-                console.log("Product data:", response.data);  // Kiểm tra dữ liệu trả về từ API
+                console.log("Product data:", response.data);
                 setData(response.data);
             } catch (error: any) {
                 setError(error.message);
@@ -167,7 +167,7 @@ function ProductsPage() {
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
-                width={500} // Đặt chiều rộng cố định
+                width={500}
             >
                 {selectedProduct ? (
                     <Card

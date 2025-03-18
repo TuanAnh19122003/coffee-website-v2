@@ -33,12 +33,13 @@ function CreateProductsPage() {
         setLoading(true);
         const formData = new FormData();
         formData.append('name', values.name);
-        formData.append('description', values.description);
+        if (values.description) formData.append('description', values.description);
         formData.append('category', values.category ? String(values.category) : '');
 
-        if (fileList.length > 0) {
-            formData.append('image', fileList[0].originFileObj as Blob);
+        if (fileList.length > 0 && fileList[0].originFileObj) {
+            formData.append('image', fileList[0].originFileObj);
         }
+        
 
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/products`, formData, {

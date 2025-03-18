@@ -42,7 +42,7 @@ const ProductsPage = () => {
                 const params = selectedCategory !== null ? { categoryId: selectedCategory } : {};
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/products`, { params });
 
-                console.log("Dữ liệu sản phẩm từ API:", response.data); // Kiểm tra dữ liệu nhận được
+                console.log("Dữ liệu sản phẩm từ API:", response.data);
 
                 if (Array.isArray(response.data)) {
                     setProducts(response.data);

@@ -107,7 +107,7 @@ const CheckOut: React.FC = () => {
 
     const handlePayPalCancel = () => {
         message.error("Thanh toán đã bị hủy.");
-        router.push("/coffee/payment/cancel"); // Điều hướng đến trang thanh toán hủy
+        router.push("/coffee/payment/cancel");
     };
 
 

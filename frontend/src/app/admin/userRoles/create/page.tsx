@@ -37,7 +37,7 @@ function CreateUserRolePage() {
         setLoading(true);
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/userroles`, {
-                roleId: values.roleId,  // Đổi lại key cho đúng
+                roleId: values.roleId,
                 userId: values.userId,
             });
             message.success('Tạo role thành công!');

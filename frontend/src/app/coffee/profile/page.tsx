@@ -18,7 +18,7 @@ function ProfilePage() {
     useEffect(() => {
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { withCredentials: true })
             .then(response => {
-                console.log('User data from backend:', response.data); // Log dữ liệu trả về từ BE
+                console.log('User data from backend:', response.data);
                 setUser(response.data);
                 setLoading(false);
             })
@@ -30,7 +30,7 @@ function ProfilePage() {
     
 
     const handleEdit = () => {
-        console.log('User data:', user);  // Kiểm tra dữ liệu người dùng
+        console.log('User data:', user);
         setEditing(true);
         if (user) {
             form.setFieldsValue({

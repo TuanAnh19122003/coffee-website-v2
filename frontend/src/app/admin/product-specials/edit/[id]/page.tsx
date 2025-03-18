@@ -42,7 +42,7 @@ function EditProductSpecialPage() {
     }, [id, form]);
 
     const handleSubmit = async (values: any) => {
-        if (!id) return; // Nếu không có id, không thực hiện update
+        if (!id) return;
 
         setLoading(true);
         try {

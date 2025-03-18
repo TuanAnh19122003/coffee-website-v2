@@ -17,9 +17,7 @@ const AboutUsPage = () => {
 
     return (
         <Layout className="p-4 mt-16">
-            {/* About Us Content */}
             <Content className="flex-grow p-4">
-                {/* Chào mừng đến Quán Xưởng Cà Phê */}
                 <Title level={1} className="text-center mb-6">
                     Chào Mừng Đến Với Quán Xưởng Cà Phê!
                 </Title>

@@ -32,7 +32,7 @@ const ProductDetailPage = () => {
                             const defaultSize = response.data.sizes[0];
                             setSelectedSize({
                                 ...defaultSize,
-                                id: defaultSize.id ?? null,  // Đảm bảo có id
+                                id: defaultSize.id ?? null,
                             });
                             console.log("✅ Đã chọn size mặc định:", defaultSize);
                         }                                    
@@ -82,8 +82,8 @@ const ProductDetailPage = () => {
             await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/cart/add`,
                 {
-                    productId: Number(id), // Chuyển đổi về kiểu số
-                    sizeId: Number(selectedSize.id), // Chuyển đổi về kiểu số
+                    productId: Number(id),
+                    sizeId: Number(selectedSize.id),
                     quantity: 1,
                     price: price,
                 },
@@ -101,7 +101,7 @@ const ProductDetailPage = () => {
             const response = await axios.get<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
                 params: { categoryId },
             });
-            setRelatedProducts(response.data.filter((p) => p.id !== Number(id))); // Loại bỏ sản phẩm đang xem
+            setRelatedProducts(response.data.filter((p) => p.id !== Number(id)));
         } catch (error) {
             console.error("Lỗi khi lấy sản phẩm liên quan", error);
         }

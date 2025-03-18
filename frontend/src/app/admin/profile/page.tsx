@@ -42,14 +42,13 @@ function UserProfilePage() {
     }, []);
 
     const handleEdit = () => {
-        setIsModalVisible(true); // Show the modal when edit button is clicked
+        setIsModalVisible(true);
     };
 
     const handleUpdate = async (values: User) => {
         setLoading(true);
         try {
             const formData = new FormData();
-            // Append form fields to FormData
             for (let key in values) {
                 formData.append(key, (values as any)[key]);
             }
@@ -63,8 +62,8 @@ function UserProfilePage() {
                 },
             });
             message.success('Profile updated successfully!');
-            setIsModalVisible(false); // Close the modal after update
-            router.push('/coffee'); // Or redirect to another page
+            setIsModalVisible(false);
+            router.push('/coffee');
         } catch (error) {
             message.error('Error updating profile');
         } finally {

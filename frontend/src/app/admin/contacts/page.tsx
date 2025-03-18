@@ -94,7 +94,7 @@ function ContactPage() {
                     setData((prevData) => prevData.filter((contact) => contact.id !== contactId));
                     message.success('Contact đã bị xóa thành công!');
                 } catch (error) {
-                    message.error('Lỗi khi xóa user role! Vui lòng thử lại.');
+                    message.error('Lỗi khi xóa contact Vui lòng thử lại.');
                 }
             },
         });
@@ -128,7 +128,7 @@ function ContactPage() {
                     onChange: handlePageChange,
                 }}
             />
-            {/* Modal hiển thị chi tiết Role */}
+
             <Modal
                 open={open}
                 title={<Title level={4}><ContactsOutlined  /> Details Contact of {`${selectedContact?.lastName} ${selectedContact?.firstName }` || ''}</Title>}

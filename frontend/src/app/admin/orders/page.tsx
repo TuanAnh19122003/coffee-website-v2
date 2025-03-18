@@ -128,7 +128,7 @@ function OrderPage() {
     const handleViewDetails = async (order: Order) => {
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders/${order.id}?populate=orderItems.product`);
-            console.log(response.data); // Debug để kiểm tra dữ liệu API
+            console.log(response.data);
             setSelectedOrder(response.data);
             setOpen(true);
         } catch (error) {
@@ -164,7 +164,7 @@ function OrderPage() {
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
-                width={500} // Đặt chiều rộng cố định
+                width={500}
             >
                 {selectedOrder ? (
                     <Card

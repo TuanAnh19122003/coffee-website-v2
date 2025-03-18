@@ -41,7 +41,7 @@ function ProductSpecialPage() {
 
     const handleDelete = async (userRoleId: number) => {
         Modal.confirm({
-            title: 'Bạn có chắc chắn muốn xóa user role này?',
+            title: 'Bạn có chắc chắn muốn xóa sản phẩm đặc biệt này?',
             onOk: async () => {
                 try {
                     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product-specials/${userRoleId}`);

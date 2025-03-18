@@ -86,12 +86,6 @@ function OrderItemPage() {
             key: 'price',
             render: (price) => price ? numeral(price).format('0,0') + ' ₫' : 'N/A',
         },
-        // {
-        //     title: 'Total price',
-        //     dataIndex: 'total_price',
-        //     key: 'total_price',
-        //     render: (_, record) => numeral(record.quantity * record.price).format('0,0') + ' đ' 
-        // },
         {
             title: 'Action',
             key: 'action',

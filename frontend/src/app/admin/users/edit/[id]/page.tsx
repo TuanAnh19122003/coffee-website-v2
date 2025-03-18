@@ -50,7 +50,6 @@ function EditUserPage() {
         setLoading(true);
         try {
             const formData = new FormData();
-            // Append form fields to FormData
             for (let key in values) {
                 formData.append(key, (values as any)[key]);
             }

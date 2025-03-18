@@ -53,8 +53,8 @@ function ProductSizePage() {
 
     const handleViewDetails = (product_size: Product_size) => {
         setSelectedProductSize(product_size);
-        console.log("Selected Product:", product_size);
-        console.log("Category ID của sản phẩm:", product_size.product?.id);
+        // console.log("Selected Product:", product_size);
+        // console.log("Category ID của sản phẩm:", product_size.product?.id);
         setOpen(true);
     };
 
@@ -140,7 +140,7 @@ function ProductSizePage() {
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
-                width={500} // Đặt chiều rộng cố định
+                width={500}
             >
                 {selectedProductSize ? (
                     <Card

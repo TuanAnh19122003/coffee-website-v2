@@ -12,14 +12,14 @@ const { Option } = Select;
 const EditUserRolePage = () => {
     const [form] = Form.useForm();
     const router = useRouter();
-    const params = useParams(); // Lấy params từ useParams()
-    const id = params?.id; // Giữ id dưới dạng string
+    const params = useParams();
+    const id = params?.id;
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (!id) return; // Nếu id chưa có, không thực hiện fetch
+        if (!id) return;
 
         const fetchData = async () => {
             try {
@@ -42,7 +42,7 @@ const EditUserRolePage = () => {
     }, [id, form]);
 
     const handleSubmit = async (values: any) => {
-        if (!id) return; // Nếu không có id, không thực hiện update
+        if (!id) return;
 
         setLoading(true);
         try {
