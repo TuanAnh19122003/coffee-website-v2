@@ -7,6 +7,10 @@ import type { TableProps } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined } from '@ant-design/icons';
 import { Order, OrderStatus } from '../interfaces/Order';
 import numeral from 'numeral';
+import { DatePicker } from 'antd';
+import moment from 'moment';
+
+
 
 const { Title, Text } = Typography;
 
@@ -18,13 +22,23 @@ function OrderPage() {
     const [pageSize, setPageSize] = useState(5)
     const [open, setOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [dateFilter, setDateFilter] = useState<string | null>(null);
+
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders`);
-                setData(response.data);
+                let filteredData = response.data;
+    
+                if (dateFilter) {
+                    filteredData = filteredData.filter((order: Order) =>
+                        moment(order.order_date).format("YYYY-MM-DD") === dateFilter
+                    );
+                }
+    
+                setData(filteredData);
             } catch (error: any) {
                 setError(error.message);
             } finally {
@@ -32,7 +46,17 @@ function OrderPage() {
             }
         };
         fetchData();
-    }, []);
+    }, [dateFilter]);
+    
+
+    const handleDateChange = (date: moment.Moment | null) => {
+        if (date) {
+            setDateFilter(date.format("YYYY-MM-DD"));
+        } else {
+            setDateFilter(null);
+        }
+    };
+    
 
     const statusFilters = Object.values(OrderStatus).map(status => ({
         text: status.charAt(0).toUpperCase() + status.slice(1),
@@ -47,18 +71,37 @@ function OrderPage() {
         },
         {
             title: 'Full Name',
-            dataIndex: 'user',
-            key: 'user',
-            render: (text, record) => (
-                <span>{record.user.lastname} {record.user.firstname}</span>
-            ),
+            key: 'fullname',
+            render: (_, record) => `${record.user.lastname} ${record.user.firstname}`,
+            sorter: (a, b) => (`${a.user.lastname} ${a.user.firstname}`).localeCompare(`${b.user.lastname} ${b.user.firstname}`),
+            sortDirections: ['ascend', 'descend'],
         },
         {
             title: 'Order date',
             dataIndex: 'order_date',
             key: 'order_date',
-            render: (order_date: string) => <Text type="secondary">{new Date(order_date).toLocaleDateString()}</Text>,
-        },
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <DatePicker
+                        onChange={(date) => {
+                            if (date) {
+                                setSelectedKeys([date.format("YYYY-MM-DD")]);
+                            } else {
+                                setSelectedKeys([]);
+                            }
+                            confirm();
+                        }}
+                        style={{ width: 200 }}
+                    />
+                    <Button onClick={() => clearFilters?.()} size="small" style={{ width: 90, marginTop: 8 }}>
+                        Reset
+                    </Button>
+                </div>
+            ),
+            onFilter: (value, record) =>
+                moment(record.order_date).format("YYYY-MM-DD") === value,
+            render: (order_date: string) => <Text type="secondary">{moment(order_date).format("DD/MM/YYYY HH:mm")}</Text>,
+        },        
         {
             title: 'Total Price',
             dataIndex: 'total_price',

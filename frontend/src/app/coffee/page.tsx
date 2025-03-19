@@ -40,17 +40,23 @@ const HomePage = () => {
     return (
         <Layout className="p-4">
             <Content className="p-4">
-                <div className="hero-banner" style={{ textAlign: 'center', background: '#f7f7f7' }}>
+            <div className="hero-banner" style={{ textAlign: 'center', background: '#f7f7f7' }}>
                     <Carousel autoplay autoplaySpeed={4000}>
-                        <div>
-                            <Image src="/banner1.jpg" alt="Banner 1" style={{ width: '100vw', height: 'auto', objectFit: 'cover' }} />
-                        </div>
-                        <div>
-                            <Image src="/banner2.jpg" alt="Banner 2" style={{ width: '100vw', height: 'auto', objectFit: 'cover' }} />
-                        </div>
-                        <div>
-                            <Image src="/banner3.jpg" alt="Banner 3" style={{ width: '100vw', height: 'auto', objectFit: 'cover' }} />
-                        </div>
+                        {["/banner1.jpg", "/banner2.jpg", "/banner3.jpg"].map((src, index) => (
+                            <div key={index} style={{ display: "flex", justifyContent: "center" }}>
+                                <Image
+                                    src={src}
+                                    alt={`Banner ${index + 1}`}
+                                    preview={false}
+                                    style={{
+                                        maxWidth: '100%',
+                                        height: '500px',
+                                        objectFit: 'cover',
+                                        borderRadius: '8px'
+                                    }}
+                                />
+                            </div>
+                        ))}
                     </Carousel>
                 </div>
 

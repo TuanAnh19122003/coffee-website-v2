@@ -76,7 +76,7 @@ const ProductsPage = () => {
         const price = selectedSize.discounted_price ?? selectedSize.price;
 
         try {
-            // console.log("🛒 Gửi dữ liệu:", {
+            // console.log("Gửi dữ liệu:", {
             //     productId: product.id,
             //     sizeId: selectedSize.id,
             //     quantity: 1,

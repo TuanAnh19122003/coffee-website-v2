@@ -5,6 +5,7 @@ import { Table, Button, message, Input, Card, Radio } from "antd";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import numeral from 'numeral';
 
 interface CartItem {
     id: number;
@@ -133,7 +134,8 @@ const CheckOut: React.FC = () => {
             title: "Giá",
             dataIndex: "price",
             key: "price",
-            render: (price: number) => `${price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}`,
+            render: (price: number) => price ? numeral(price).format('0,0') + ' ₫' : 'N/A',
+            //render: (price) => price ? numeral(price).format('0,0') + ' ₫' : 'N/A',
         },
     ];
 
