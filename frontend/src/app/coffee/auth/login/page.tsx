@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Form, Input, Button, Card, message, Typography } from "antd";
+import { Form, Input, Button, Card, message, Typography, Checkbox } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined, LockOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -13,7 +13,18 @@ function LoginPage() {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
-    // Kiểm tra xem người dùng đã đăng nhập chưa
+    const [rememberMe, setRememberMe] = useState(false);
+
+    useEffect(() => {
+        const savedEmail = localStorage.getItem("rememberEmail");
+        const savedPassword = localStorage.getItem("rememberPassword");
+
+        if (savedEmail && savedPassword) {
+            form.setFieldsValue({ email: savedEmail, password: savedPassword });
+            setRememberMe(true);
+        }
+    }, [form]);
+
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -41,6 +52,14 @@ function LoginPage() {
             if (response.status >= 200 && response.status < 300) {
                 sessionStorage.setItem("user", JSON.stringify(response.data.user));
                 const user = response.data.user;
+                if (rememberMe) {
+                    localStorage.setItem("rememberEmail", values.email);
+                    localStorage.setItem("rememberPassword", values.password);
+                } else {
+                    localStorage.removeItem("rememberEmail");
+                    localStorage.removeItem("rememberPassword");
+                }
+
                 message.success({ content: "Đăng nhập thành công!", key: "login" });
                 setTimeout(() => {
                     if (user.role.includes("Admin")) {
@@ -59,6 +78,16 @@ function LoginPage() {
         }
         finally {
             setLoading(false);
+        }
+    };
+
+    const onChangeRememberMe = (e: any) => {
+        const checked = e.target.checked;
+        setRememberMe(checked);
+    
+        if (!checked) {
+            localStorage.removeItem("rememberEmail");
+            localStorage.removeItem("rememberPassword");
         }
     };
 
@@ -82,6 +111,21 @@ function LoginPage() {
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                         />
                     </Form.Item>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                        <Checkbox
+                            checked={rememberMe} 
+                            onChange={onChangeRememberMe}
+                            style={{ color: "black" }}
+                        >
+                            Remember me
+                        </Checkbox>
+
+                        <Link href="#" className="text-blue-400 hover:underline">
+                            forgot password?
+                        </Link>
+                    </div>
+
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit" loading={loading} block size="large">
