@@ -6,4 +6,6 @@ export class CreateUserDto {
     lastname: string;
     phone?: string;
     address?: string;
+    resetToken?: string;
+    resetTokenExpire?: Date;
 }

@@ -120,6 +120,7 @@ export class OrdersService {
       .addSelect("SUM(order.total_price) AS revenue")
       .where("MONTH(order.order_date) = :month", { month })
       .andWhere("YEAR(order.order_date) = YEAR(CURDATE())")
+      .andWhere('order.status = :status', { status: 'Completed' })
       .groupBy("day")
       .orderBy("day", "ASC")
       .getRawMany();

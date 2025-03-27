@@ -84,7 +84,7 @@ export class AuthController {
     }
 
     @Post('/me')
-    @UseInterceptors(FileInterceptor('image', multerConfig))  // Sử dụng cấu hình multer đã tạo
+    @UseInterceptors(FileInterceptor('image', multerConfig))
     async updateProfile(
         @Body() updateUserDto: UpdateUserDto,
         @Req() req: Request,
@@ -92,18 +92,39 @@ export class AuthController {
     ) {
         const userId = (req as any).session.user.id;
 
-        // Kiểm tra xem có file ảnh gửi lên không
         if (file) {
             const filePath = `/uploads/${file.filename}`;
-            updateUserDto.image = filePath; // Lưu đường dẫn ảnh vào DTO
+            updateUserDto.image = filePath;
         }
 
-        // Cập nhật thông tin người dùng
-        const updatedUser = await this.usersService.update(userId, updateUserDto, file);
 
-        // Cập nhật lại session với thông tin người dùng mới
+        const updatedUser = await this.usersService.update(userId, updateUserDto, file);
         (req as any).session.user = updatedUser;
 
         return { user: updatedUser };
+    }
+
+    @Post('forgot-password')
+    async forgotPassword(@Body('email') email: string, @Res() res: Response) {
+        try {
+            const result = await this.authService.forgotPassword(email);
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
+    @Post('reset-password')
+    async resetPassword(
+        @Body('token') token: string,
+        @Body('newPassword') newPassword: string,
+        @Res() res: Response
+    ) {
+        try {
+            const result = await this.authService.resetPassword(token, newPassword);
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(400).json({ message: error.message });
+        }
     }
 }

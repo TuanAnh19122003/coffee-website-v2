@@ -31,10 +31,17 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
+  async findByResetToken(token: string) {
+    return this.userRepository.findOne({
+      where: { resetToken: token }
+    });
+  }
+
+
   async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { email },
-      relations: ['userRoles.role','userRoles'],
+      relations: ['userRoles.role', 'userRoles'],
     });
   }
 

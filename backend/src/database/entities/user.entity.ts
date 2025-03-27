@@ -30,9 +30,15 @@ export class User {
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     createdAt?: Date;
 
-    @Column({type: 'datetime', default: () => 'CURRENT_TIMESTAMP',onUpdate: 'CURRENT_TIMESTAMP',})
+    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', })
     updatedAt?: Date;
 
     @OneToMany(() => UserRole, userRole => userRole.user)
     userRoles: UserRole[];
+
+    @Column({ nullable: true })
+    resetToken?: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    resetTokenExpire?: Date;
 }
