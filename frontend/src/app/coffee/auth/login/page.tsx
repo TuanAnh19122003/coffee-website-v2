@@ -121,7 +121,7 @@ function LoginPage() {
                             Remember me
                         </Checkbox>
 
-                        <Link href="#" className="text-blue-400 hover:underline">
+                        <Link href="/coffee/auth/forgot-password" className="text-blue-400 hover:underline">
                             forgot password?
                         </Link>
                     </div>
