@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, message, Descriptions, Typography, Card } from 'antd';
+import { Button, Space, Table, Modal, message, Descriptions, Typography, Card, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined, SearchOutlined } from '@ant-design/icons';
 import { Product_special } from '../interfaces/Product_special';
 
 const { Title, Text } = Typography;
@@ -15,7 +15,8 @@ function ProductSpecialPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5)
+    const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedProductSpecial, setSelectedProductSpecial] = useState<Product_special | null>(null);
@@ -71,6 +72,11 @@ function ProductSpecialPage() {
         }
     };
 
+    const filteredData = data.filter(special =>
+        special.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        special.special.special_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const columns: TableProps<Product_special>['columns'] = [
         {
             title: 'STT',
@@ -117,15 +123,24 @@ function ProductSpecialPage() {
         <div className="card-mt2">
             <div className="flex items-center justify-between border-b pb-3 mb-4">
                 <Title level={3} className="text-gray-800">Product Special List</Title>
-                <Link href="/admin/product-specials/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search special..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/product-specials/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
             </div>
             <Table<Product_special>
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey="id"
                 pagination={{
                     current: currentPage,

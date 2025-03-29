@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Card, Typography, Descriptions, message } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography, Descriptions, message, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined, SearchOutlined } from '@ant-design/icons';
 import { Role } from '../interfaces/Role';
 
 const { Title } = Typography;
@@ -16,6 +16,8 @@ const RolePage = () => {
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,8 +49,11 @@ const RolePage = () => {
         });
     };
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = (page: number, pageSize?: number) => {
         setCurrentPage(page);
+        if (pageSize) {
+            setPageSize(pageSize);
+        }
     };
 
 
@@ -56,6 +61,10 @@ const RolePage = () => {
         setSelectedRole(role);
         setOpen(true);
     };
+
+    const filteredData = data.filter(roles =>
+        roles.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const columns: TableProps<Role>['columns'] = [
         {
@@ -94,18 +103,33 @@ const RolePage = () => {
         <div className="card-mt2">
             <div className='flex items-center justify-between border-b pb-3 mb-4'>
                 <h1 className='text-lg font-semibold text-gray-800'>Roles List</h1>
-                <Link href="/admin/roles/create">
-                    <Button type="primary" icon={<PlusOutlined />}>New</Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search role..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/roles/create">
+                        <Button type="primary" icon={<PlusOutlined />}>New</Button>
+                    </Link>
+                </div>
+
             </div>
             <Table<Role>
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey="id"
                 pagination={{
-                    pageSize: 5,
+                    current: currentPage,
+                    pageSize: pageSize,
                     showSizeChanger: true,
                     pageSizeOptions: ['5', '10', '15'],
+                    onShowSizeChange: (current, size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                    },
                     position: ['bottomCenter'],
                     onChange: handlePageChange,
                 }}

@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
+import { Button, Space, Table, Modal, Typography, message, Card, Descriptions, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined, ShoppingOutlined, SearchOutlined } from '@ant-design/icons';
 import { OrderItem } from '../interfaces/OrderItem';
 import numeral from 'numeral';
 
@@ -18,6 +18,8 @@ function OrderItemPage() {
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+    const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -53,9 +55,17 @@ function OrderItemPage() {
         setOpen(true);
     };
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = (page: number, pageSize?: number) => {
         setCurrentPage(page);
+        if (pageSize) {
+            setPageSize(pageSize);
+        }
     };
+
+    const filteredData = data.filter(order =>
+        order.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.size.size.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const columns: TableProps<OrderItem>["columns"] = [
         {
@@ -114,21 +124,36 @@ function OrderItemPage() {
         <div>
             <div className="flex items-center justify-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">Order Item List</h1>
-                <Link href="/admin/order-items/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search orderItem..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/order-items/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
+
             </div>
             <div>
                 <Table
                     columns={columns}
-                    dataSource={data}
+                    dataSource={filteredData}
                     rowKey='id'
                     pagination={{
-                        pageSize: 5,
+                        current: currentPage,
+                        pageSize: pageSize,
                         showSizeChanger: true,
                         pageSizeOptions: ['5', '10', '15'],
+                        onShowSizeChange: (current, size) => {
+                            setPageSize(size);
+                            setCurrentPage(1);
+                        },
                         position: ['bottomCenter'],
                         onChange: handlePageChange,
                     }}
@@ -136,11 +161,11 @@ function OrderItemPage() {
             </div>
             <Modal
                 open={open}
-                title={<Title level={4}><ShoppingOutlined  /> Details of Order {selectedOrderItem?.order.id || ''}</Title>}
+                title={<Title level={4}><ShoppingOutlined /> Details of Order {selectedOrderItem?.order.id || ''}</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered
-                width={500} // Đặt chiều rộng cố định
+                width={500}
             >
                 {selectedOrderItem ? (
                     <Card
@@ -158,7 +183,7 @@ function OrderItemPage() {
                             <Descriptions.Item label="Size">{selectedOrderItem.size.size}</Descriptions.Item>
                             <Descriptions.Item label="Price">
                                 {
-                                    selectedOrderItem.price? numeral(selectedOrderItem.price).format('0,0') + ' ₫' : 'N/A'
+                                    selectedOrderItem.price ? numeral(selectedOrderItem.price).format('0,0') + ' ₫' : 'N/A'
                                 }
                             </Descriptions.Item>
                             <Descriptions.Item label="Quantity"> {selectedOrderItem.quantity}</Descriptions.Item>
@@ -167,7 +192,7 @@ function OrderItemPage() {
                                     numeral(selectedOrderItem.price * selectedOrderItem.quantity).format('0,0') + ' đ'
                                 }
                             </Descriptions.Item>
-                            
+
                         </Descriptions>
                     </Card>
                 ) : (

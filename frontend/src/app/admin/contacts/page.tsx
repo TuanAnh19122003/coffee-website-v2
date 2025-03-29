@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Card, Typography, Descriptions, message } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography, Descriptions, message, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ContactsOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ContactsOutlined, SearchOutlined } from '@ant-design/icons';
 import { Contact } from '../interfaces/Contact';
 
 const { Title } = Typography;
@@ -16,6 +16,7 @@ function ContactPage() {
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
 
     useEffect(() => {
@@ -113,17 +114,33 @@ function ContactPage() {
         setOpen(true);
     };
 
+    const filteredData = data.filter(contact =>
+        contact.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="card-mt2">
             <div className='flex items-center justify-between border-b pb-3 mb-4'>
                 <h1 className='text-lg font-semibold text-gray-800'>Contacts List</h1>
-                <Link href="/admin/contacts/create">
-                    <Button type="primary" icon={<PlusOutlined />}>New</Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search contact..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/contacts/create">
+                        <Button type="primary" icon={<PlusOutlined />}>New</Button>
+                    </Link>
+                </div>
+
             </div>
             <Table<Contact>
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey="id"
                 pagination={{
                     current: currentPage,
@@ -141,7 +158,7 @@ function ContactPage() {
 
             <Modal
                 open={open}
-                title={<Title level={4}><ContactsOutlined  /> Details Contact of {`${selectedContact?.lastName} ${selectedContact?.firstName }` || ''}</Title>}
+                title={<Title level={4}><ContactsOutlined /> Details Contact of {`${selectedContact?.lastName} ${selectedContact?.firstName}` || ''}</Title>}
                 footer={null}
                 onCancel={() => setOpen(false)}
                 centered

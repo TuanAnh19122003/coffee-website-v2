@@ -81,9 +81,6 @@ function Header() {
             </div>
 
             <div className="flex items-center gap-5">
-                <div className="w-96 flex">
-                    <Search placeholder="Tìm kiếm..." allowClear enterButton className="border-gray-300 focus:border-blue-500" />
-                </div>
                 <BellOutlined className="text-xl mr-4 cursor-pointer hover:text-gray-500 transition ease-in-out duration-300" />
 
                 {user ? (

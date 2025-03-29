@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
+import { Button, Space, Table, Modal, Typography, message, Card, Descriptions, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined, SearchOutlined } from '@ant-design/icons';
 import { Product } from '../interfaces/Product';
 
 
@@ -19,6 +19,7 @@ function ProductsPage() {
     const [pageSize, setPageSize] = useState(5)
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -82,6 +83,10 @@ function ProductsPage() {
         setOpen(true);
     };
 
+    const filteredData = data.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const columns: TableProps<Product>['columns'] = [
         {
@@ -108,7 +113,7 @@ function ProductsPage() {
             sorter: (a, b) => a.name.localeCompare(b.name),
             sortDirections: ['ascend', 'descend'],
         },
-        
+
         {
             title: 'Category',
             dataIndex: 'category',
@@ -151,15 +156,25 @@ function ProductsPage() {
         <div className='card-mt2'>
             <div className="flex items-center justify-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">Product List</h1>
-                <Link href="/admin/products/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search product..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/products/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
+
             </div>
             <Table
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey='id'
                 pagination={{
                     current: currentPage,

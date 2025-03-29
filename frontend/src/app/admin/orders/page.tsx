@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
+import { Button, Space, Table, Modal, Typography, message, Card, Descriptions, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, OrderedListOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import { Order, OrderStatus } from '../interfaces/Order';
 import numeral from 'numeral';
 import { DatePicker } from 'antd';
@@ -23,7 +23,7 @@ function OrderPage() {
     const [open, setOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [dateFilter, setDateFilter] = useState<string | null>(null);
-
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,13 +31,13 @@ function OrderPage() {
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders`);
                 let filteredData = response.data;
-    
+
                 if (dateFilter) {
                     filteredData = filteredData.filter((order: Order) =>
                         moment(order.order_date).format("YYYY-MM-DD") === dateFilter
                     );
                 }
-    
+
                 setData(filteredData);
             } catch (error: any) {
                 setError(error.message);
@@ -47,7 +47,7 @@ function OrderPage() {
         };
         fetchData();
     }, [dateFilter]);
-    
+
 
     const handleDateChange = (date: moment.Moment | null) => {
         if (date) {
@@ -56,12 +56,12 @@ function OrderPage() {
             setDateFilter(null);
         }
     };
-    
+
 
     const statusFilters = Object.values(OrderStatus).map(status => ({
         text: status.charAt(0).toUpperCase() + status.slice(1),
         value: status
-    }));  
+    }));
 
     const columns: TableProps<Order>['columns'] = [
         {
@@ -101,7 +101,7 @@ function OrderPage() {
             onFilter: (value, record) =>
                 moment(record.order_date).format("YYYY-MM-DD") === value,
             render: (order_date: string) => <Text type="secondary">{moment(order_date).format("DD/MM/YYYY HH:mm")}</Text>,
-        },        
+        },
         {
             title: 'Total Price',
             dataIndex: 'total_price',
@@ -176,19 +176,36 @@ function OrderPage() {
         }
     };
 
+    const filteredData = data.filter(order =>
+        order.user.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.shipping_address.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className='card-mt2'>
             <div className="flex items-center justify-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">Orders List</h1>
-                <Link href="/admin/orders/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search order..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/orders/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
+
+
             </div>
             <Table
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey='id'
                 pagination={{
                     current: currentPage,
@@ -231,11 +248,11 @@ function OrderPage() {
                                     columns={[
                                         { title: "Product", dataIndex: ["product", "name"], key: "product" },
                                         { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-                                        { 
-                                            title: "Price", 
-                                            dataIndex: "price", 
+                                        {
+                                            title: "Price",
+                                            dataIndex: "price",
                                             key: "price",
-                                            render: (price) => price ? numeral(price).format('0,0') + ' ₫' : 'N/A', 
+                                            render: (price) => price ? numeral(price).format('0,0') + ' ₫' : 'N/A',
                                         },
                                     ]}
                                 />

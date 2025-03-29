@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Card, Typography, Descriptions, message } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography, Descriptions, message, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined, SearchOutlined } from '@ant-design/icons';
 import { Special } from '../interfaces/Special';
 
 const { Title } = Typography;
@@ -16,7 +16,8 @@ function SpecialPage() {
     const [selectedSpecial, setSelectedSpecial] = useState<Special | null>(null);
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5)
+    const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -59,12 +60,17 @@ function SpecialPage() {
             },
         });
     };
+
+    const filteredData = data.filter(special =>
+        special.special_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const columns: TableProps<Special>['columns'] = [
         {
             title: 'STT',
             key: 'index',
             render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
-        }, 
+        },
         {
             title: 'Special Name',
             dataIndex: 'special_name',
@@ -101,13 +107,23 @@ function SpecialPage() {
         <div className="card-mt2">
             <div className='flex items-center justify-between border-b pb-3 mb-4'>
                 <h1 className='text-lg font-semibold text-gray-800'>Special List</h1>
-                <Link href="/admin/specials/create">
-                    <Button type="primary" icon={<PlusOutlined />}>New</Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search special..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/specials/create">
+                        <Button type="primary" icon={<PlusOutlined />}>New</Button>
+                    </Link>
+                </div>
+
             </div>
             <Table
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey='id'
                 pagination={{
                     current: currentPage,

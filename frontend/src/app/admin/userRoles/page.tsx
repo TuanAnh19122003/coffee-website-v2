@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, message, Descriptions, Typography, Card } from 'antd';
+import { Button, Space, Table, Modal, message, Descriptions, Typography, Card, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined, SearchOutlined } from '@ant-design/icons';
 import { UserRole } from '../interfaces/UserRole';
 
 const { Title, Text } = Typography;
@@ -14,7 +14,8 @@ const UserRolePage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5)
+    const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedUserRole, setSelectedUserRole] = useState<UserRole | null>(null);
@@ -70,12 +71,18 @@ const UserRolePage = () => {
         }
     };
 
+    const filteredData = data.filter(userRole =>
+        userRole.user.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        userRole.user.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        userRole.role.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const columns: TableProps<UserRole>['columns'] = [
         {
             title: 'STT',
             key: 'index',
             render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
-        },  
+        },
         {
             title: 'User',
             dataIndex: 'user',
@@ -116,15 +123,25 @@ const UserRolePage = () => {
         <div className="card-mt2">
             <div className="flex items-center justify-between border-b pb-3 mb-4">
                 <Title level={3} className="text-gray-800">User Roles List</Title>
-                <Link href="/admin/userRoles/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search user role..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/userRoles/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
+
             </div>
             <Table<UserRole>
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey="id"
                 pagination={{
                     current: currentPage,

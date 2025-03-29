@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Typography, message, Card, Descriptions } from 'antd';
+import { Button, Space, Table, Modal, Typography, message, Card, Descriptions, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, ShoppingOutlined, SearchOutlined } from '@ant-design/icons';
 import { Product_size } from '../interfaces/Product_size';
 import numeral from 'numeral';
 
@@ -17,11 +17,11 @@ function ProductSizePage() {
     const [error, setError] = useState<string | null>(null);
     const [productFilters, setProductFilters] = useState<{ text: string; value: string }[]>([]);
     const [sizeFilters, setSizeFilters] = useState<{ text: string; value: string }[]>([]);
-
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [open, setOpen] = useState(false);
     const [selectedProductSize, setSelectedProductSize] = useState<Product_size | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -82,12 +82,17 @@ function ProductSizePage() {
         }
     };
 
+    const filteredData = data.filter(size =>
+        size.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        size.size.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const columns: TableProps<Product_size>['columns'] = [
         {
             title: 'STT',
             key: 'index',
             render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
-        },        
+        },
         {
             title: 'Product',
             dataIndex: 'product',
@@ -137,16 +142,26 @@ function ProductSizePage() {
         <div>
             <div className="flex items-center justify-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">Product Size List</h1>
-                <Link href="/admin/product-sizes/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search size..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/product-sizes/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
+
             </div>
             <div>
                 <Table
                     columns={columns}
-                    dataSource={data}
+                    dataSource={filteredData}
                     rowKey='id'
                     pagination={{
                         current: currentPage,

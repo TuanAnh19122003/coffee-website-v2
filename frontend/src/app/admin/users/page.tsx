@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Button, Space, Table, Modal, Card, Typography, Col, Row, Descriptions, message } from 'antd';
+import { Button, Space, Table, Modal, Card, Typography, Col, Row, Descriptions, message, Input } from 'antd';
 import type { TableProps } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, IdcardOutlined, SearchOutlined } from '@ant-design/icons';
 import { User } from '../interfaces/User';
 
 const { Title, Text } = Typography;
@@ -18,6 +18,7 @@ const UserPage = () => {
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,12 +63,17 @@ const UserPage = () => {
         setOpen(true);
     };
 
+    const filteredData = data.filter(user =>
+        user.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.lastname.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const columns: TableProps<User>['columns'] = [
         {
             title: 'STT',
             key: 'index',
             render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
-        }, 
+        },
         {
             title: 'Image',
             dataIndex: 'image',
@@ -90,14 +96,14 @@ const UserPage = () => {
                 value: user.email,
             })),
             onFilter: (value, record) => record.email.includes(value.toLocaleString()),
-        },        
+        },
         {
             title: 'Full Name',
             key: 'fullname',
             render: (_, record) => `${record.lastname} ${record.firstname}`,
             sorter: (a, b) => (`${a.lastname} ${a.firstname}`).localeCompare(`${b.lastname} ${b.firstname}`),
             sortDirections: ['ascend', 'descend'],
-        },        
+        },
         {
             title: 'Phone',
             dataIndex: 'phone',
@@ -112,7 +118,7 @@ const UserPage = () => {
                 value: address,
             })),
             onFilter: (value, record) => record.address === value,
-        },        
+        },
         {
             title: 'Action',
             key: 'action',
@@ -141,15 +147,25 @@ const UserPage = () => {
         <div className="card-mt2">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="h3 mb-0 text-gray-800">Users List</h1>
-                <Link href="/admin/users/create">
-                    <Button type="primary" icon={<PlusOutlined />}>
-                        New
-                    </Button>
-                </Link>
+                <div className='flex gap-2'>
+                    <Input
+                        placeholder="Search user..."
+                        prefix={<SearchOutlined />}
+                        className="border p-1 rounded-md"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Link href="/admin/users/create">
+                        <Button type="primary" icon={<PlusOutlined />}>
+                            New
+                        </Button>
+                    </Link>
+                </div>
+
             </div>
             <Table
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey='id'
                 pagination={{
                     current: currentPage,
