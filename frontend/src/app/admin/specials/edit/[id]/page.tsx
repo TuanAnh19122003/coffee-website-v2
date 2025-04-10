@@ -60,7 +60,7 @@ function EditSpecialPage() {
         <div className='bg-white rounded-b-lg'>
             <div className='flex items-center justify-between border-b-2 pb-3 mb-4 '>
                 <h1 className='text-lg font-semibold text-gray-800'>Edit</h1>
-                <Button type='default' icon={<ArrowLeftOutlined />} size='middle' onClick={() => router.push('/admin/products')}>
+                <Button type='default' icon={<ArrowLeftOutlined />} size='middle' onClick={() => router.push('/admin/specials')}>
                     Back
                 </Button>
             </div>

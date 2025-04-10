@@ -40,7 +40,7 @@ function CreateSpecialPage() {
         <div className='bg-white rounded-b-lg'>
             <div className='flex items-center justify-between border-b pb-3 mb-4'>
                 <h1 className='text-lg font-semibold text-gray-800'>Create</h1>
-                <Button type='default' icon={<ArrowLeftOutlined />} size='middle' onClick={() => router.push('/admin/categories')}>
+                <Button type='default' icon={<ArrowLeftOutlined />} size='middle' onClick={() => router.push('/admin/specials')}>
                     Back
                 </Button>
             </div>

@@ -140,8 +140,8 @@ function ProductSizePage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="h3 mb-0 text-gray-800">Product Size List</h1>
+            <div className="flex items-center justify-between border-b pb-3 mb-4">
+                <h1 className="text-lg font-semibold text-gray-800">Product Size List</h1>
                 <div className='flex gap-2'>
                     <Input
                         placeholder="Search size..."

@@ -59,7 +59,7 @@ function Header() {
         {
             key: '3',
             icon: <UserOutlined />,
-            label: <a href="/coffee">UsePage</a>,
+            label: <a href="/coffee">Trang người dùng</a>,
         },        
         {
             key: '4',
@@ -77,7 +77,7 @@ function Header() {
                 <Link href="/admin" className="no-underline">
                     <img src="/logo.jpg" alt="Logo" sizes="" className="h-16" />
                 </Link>
-                <span className="text-2xl font-semibold text-black">Admin Dashboard</span>
+                <span className="text-2xl font-semibold text-black">Quản lý Xưởng Cafe</span>
             </div>
 
             <div className="flex items-center gap-5">

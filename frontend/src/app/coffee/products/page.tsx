@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Layout, Menu, Card, Typography, Row, Col, message, Spin, Image, Button } from "antd";
+import { Layout, Menu, Card, Typography, Row, Col, message, Spin, Image, Button, Tag } from "antd";
 import { Category } from "@/app/admin/interfaces/Category";
 import { Product } from "@/app/admin/interfaces/Product";
 import { ShoppingCartOutlined, EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { div } from "framer-motion/client";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -132,19 +133,27 @@ const ProductsPage = () => {
 
                                     const originalPrice = original_price ?? 0;
                                     const discountedPrice = discounted_price ?? originalPrice;
+                                    const discountPercent = original_price ? Math.round(((original_price - discounted_price) / original_price) * 100) : 0;
 
                                     return (
                                         <Col key={id} xs={24} sm={12} md={8} lg={6}>
                                             <Card
                                                 hoverable
                                                 cover={
-                                                    <Image
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL}${image}` || "/images/placeholder.png"}
-                                                        alt={name}
-                                                        width="100%"
-                                                        height={200}
-                                                        style={{ objectFit: "cover" }}
-                                                    />
+                                                    <div>
+                                                        <Image
+                                                            src={`${process.env.NEXT_PUBLIC_API_URL}${image}` || "/images/placeholder.png"}
+                                                            alt={name}
+                                                            width="100%"
+                                                            height={200}
+                                                            style={{ objectFit: "cover" }}
+                                                        />
+                                                        {discountPercent > 0 && (
+                                                            <Tag color="red" style={{ position: "absolute", top: 10, left: 10 }}>
+                                                                -{discountPercent}%
+                                                            </Tag>
+                                                        )}
+                                                    </div>
                                                 }
                                                 actions={[
                                                     <Button type="link" onClick={() => handleAddToCart(product)}>
